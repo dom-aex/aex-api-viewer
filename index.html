@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .config-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .config-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .response-section {
+            margin-top: 30px;
+        }
+
+        .response-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .response-container {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .json-display {
+            color: #d4d4d4;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-loading {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            border-left: 4px solid #dc3545;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #0c5460;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: #5568d3;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .voyage-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 10px;
+            margin-top: 10px;
+            background: #f8f9fa;
+        }
+
+        .voyage-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .voyage-item:hover {
+            background: #e7f3ff;
+        }
+
+        .voyage-item.selected {
+            background: #667eea;
+            color: white;
+        }
+
+        .accordion {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: #333;
+            transition: background 0.3s;
+        }
+
+        .accordion-header:hover {
+            background: #e9ecef;
+        }
+
+        .accordion-content {
+            padding: 20px;
+            display: none;
+        }
+
+        .accordion-content.active {
+            display: block;
+        }
+
+        .accordion-icon {
+            transition: transform 0.3s;
+        }
+
+        .accordion-icon.rotated {
+            transform: rotate(180deg);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .data-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .data-table {
+                font-size: 12px;
+            }
+            .data-table th,
+            .data-table td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔌 API Viewer</h1>
+            <p>Connect to your API and view JSON responses</p>
+        </div>
+        
+        <div class="content">
+            <div class="info-box">
+                <strong>ℹ️ Instructions:</strong> Search for a voyage code (format: 3 letters + 3 numbers + 1 letter, e.g., SCO018G) and select a currency to view pricing details. API configuration is pre-configured.
+            </div>
+
+            <!-- API Configuration - Hidden, values hardcoded -->
+            <div class="accordion" style="display: none;">
+                <div class="accordion-header" onclick="toggleAccordion('apiConfig')">
+                    <span>API Configuration</span>
+                    <span class="accordion-icon" id="apiConfigIcon">▼</span>
+                </div>
+                <div class="accordion-content active" id="apiConfigContent">
+            <div class="config-section" style="margin-bottom: 0;">
+                <h2 style="display: none;">API Configuration</h2>
+                
+                <div class="form-group">
+                    <label for="authMethod">Authentication Method *</label>
+                    <select id="authMethod" onchange="toggleAuthFields()">
+                        <option value="noauth" selected>NoAuth (Credentials as Headers)</option>
+                        <option value="oauth">OAuth 2.0</option>
+                    </select>
+                </div>
+
+                <div id="tokenUrlGroup" class="form-group">
+                    <label for="tokenUrl">Token Endpoint URL *</label>
+                    <input type="text" id="tokenUrl" placeholder="https://api.example.com/token" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="clientId">Client ID *</label>
+                        <input type="text" id="clientId" placeholder="Your client ID" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="clientSecret">Client Secret *</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="clientSecret" placeholder="Your client secret" required>
+                            <button type="button" class="toggle-password" onclick="togglePassword()">👁️ Show</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="useProxy" style="width: auto;">
+                        Use CORS Proxy (if getting "Failed to fetch" errors)
+                    </label>
+                </div>
+
+                <div id="proxyUrlGroup" class="form-group">
+                    <label for="proxyUrl">Proxy Server URL</label>
+                    <input type="text" id="proxyUrl" placeholder="https://cors-proxy.your-subdomain.workers.dev/proxy">
+                    <small style="color: #666; display: block; margin-top: 5px;">
+                        <strong>Recommended:</strong> Deploy a Cloudflare Worker (see CORS_SOLUTIONS_GUIDE.md) or use local proxy: <code>http://localhost:3000/proxy</code>
+                    </small>
+                </div>
+
+                <div id="oauthFields" style="display: none;">
+                    <div class="form-group">
+                        <label for="grantType">Grant Type</label>
+                        <select id="grantType">
+                            <option value="client_credentials">Client Credentials</option>
+                            <option value="password">Password</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="scope">Scope (optional)</label>
+                        <input type="text" id="scope" placeholder="read write">
+                    </div>
+                </div>
+
+                </div>
+            </div>
+            </div>
+            <!-- End of hidden API Configuration accordion -->
+
+            <div class="config-section">
+                <h2>Select Voyage & Currency</h2>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="voyageCode">Voyage Code *</label>
+                        <input type="text" id="voyageCode" placeholder="e.g., SCO018G" pattern="[A-Z]{3}\d{3}[A-Z]" maxlength="7" required>
+                        <small style="color: #666; display: block; margin-top: 5px;">
+                            Format: 3 letters + 3 numbers + 1 letter (e.g., SCO018G)
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label for="currency">Currency *</label>
+                        <select id="currency" required>
+                            <option value="ALL" selected>ALL</option>
+                            <option value="AUD">AUD</option>
+                            <option value="USD">USD</option>
+                            <option value="GBP">GBP</option>
+                            <option value="EUR">EUR</option>
+                            <option value="NZD">NZD</option>
+                            <option value="CAD">CAD</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" style="display: none;">
+                    <label for="serviceEndpoint">Service Endpoint URL *</label>
+                    <input type="text" id="serviceEndpoint" value="https://aurora-website-app-26ta7u.5sc6y6-4.usa-e2.cloudhub.io/api/service" placeholder="https://aurora-website-app-26ta7u.5sc6y6-4.usa-e2.cloudhub.io/api/service" required>
+                </div>
+
+                <button class="btn" onclick="fetchServiceDetails()" id="fetchServiceBtn">
+                    🔍 Fetch Voyage Details
+                </button>
+            </div>
+
+            <div class="response-section">
+                <h2>Voyage Details</h2>
+                <div id="serviceStatusIndicator"></div>
+                <div id="serviceErrorContainer"></div>
+                <div id="serviceTableContainer" style="display: none;">
+                    <button class="btn" onclick="fetchTripNotes()" id="tripNotesBtn" style="background: #28a745; margin-bottom: 15px;">
+                        📝 Read Trip Notes
+                    </button>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table" id="serviceDataTable">
+                            <thead>
+                                <tr>
+                                    <th>Cabin Category</th>
+                                    <th>Currency ISO Code</th>
+                                    <th>Gross Price</th>
+                                    <th>Promotion Value</th>
+                                    <th>Promotion Type</th>
+                                    <th>Additional Promotion Price</th>
+                                    <th>Net Price</th>
+                                    <th>Units Available</th>
+                                </tr>
+                            </thead>
+                            <tbody id="serviceTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="response-container" id="serviceResponseContainer" style="display: none;">
+                    <div class="json-display" id="serviceJsonDisplay"></div>
+                </div>
+            </div>
+
+            <div class="response-section" id="tripNotesSection" style="display: none;">
+                <h2>Trip Notes</h2>
+                <div id="tripNotesStatusIndicator"></div>
+                <div id="tripNotesErrorContainer"></div>
+                <div id="tripNotesTableContainer" style="display: none;">
+                    <div style="overflow-x: auto;">
+                        <table class="data-table" id="tripNotesDataTable">
+                            <thead>
+                                <tr>
+                                    <th>Day #</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tripNotesTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="response-container" id="tripNotesResponseContainer" style="display: none;">
+                    <div class="json-display" id="tripNotesJsonDisplay"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let accessToken = null;
+
+        function toggleAccordion(id) {
+            const content = document.getElementById(id + 'Content');
+            const icon = document.getElementById(id + 'Icon');
+            content.classList.toggle('active');
+            icon.classList.toggle('rotated');
+        }
+
+        function togglePassword() {
+            const input = document.getElementById('clientSecret');
+            const button = document.querySelector('.toggle-password');
+            if (input.type === 'password') {
+                input.type = 'text';
+                button.textContent = '🙈 Hide';
+            } else {
+                input.type = 'password';
+                button.textContent = '👁️ Show';
+            }
+        }
+
+        function toggleAuthFields() {
+            const authMethod = document.getElementById('authMethod').value;
+            const oauthFields = document.getElementById('oauthFields');
+            const tokenUrlInput = document.getElementById('tokenUrl');
+
+            // Token URL is always shown (needed for both noauth and oauth)
+            // OAuth-specific fields are only shown for OAuth
+            if (authMethod === 'oauth') {
+                oauthFields.style.display = 'block';
+            } else {
+                oauthFields.style.display = 'none';
+            }
+            tokenUrlInput.required = true;
+        }
+
+        function toggleProxyFields() {
+            const useProxy = document.getElementById('useProxy').checked;
+            const proxyUrlGroup = document.getElementById('proxyUrlGroup');
+            if (useProxy) {
+                proxyUrlGroup.style.display = 'block';
+            } else {
+                proxyUrlGroup.style.display = 'none';
+            }
+        }
+
+        function getProxyUrl(originalUrl, method = 'GET') {
+            const useProxy = document.getElementById('useProxy').checked;
+            if (!useProxy) return originalUrl;
+            
+            const proxyUrl = document.getElementById('proxyUrl').value || 'http://localhost:3000/proxy';
+            return `${proxyUrl}?url=${encodeURIComponent(originalUrl)}&method=${method}`;
+        }
+
+        function showStatus(message, type, section = 'service') {
+            let indicatorId;
+            if (section === 'packages') {
+                indicatorId = 'packagesStatusIndicator';
+            } else if (section === 'tripNotes') {
+                indicatorId = 'tripNotesStatusIndicator';
+            } else {
+                indicatorId = 'serviceStatusIndicator';
+            }
+            const indicator = document.getElementById(indicatorId);
+            if (indicator) {
+                indicator.innerHTML = `<span class="status-indicator status-${type}">${message}</span>`;
+            }
+        }
+
+        function showError(message, section = 'service') {
+            let containerId;
+            if (section === 'packages') {
+                containerId = 'packagesErrorContainer';
+            } else if (section === 'tripNotes') {
+                containerId = 'tripNotesErrorContainer';
+            } else {
+                containerId = 'serviceErrorContainer';
+            }
+            const container = document.getElementById(containerId);
+            if (container) {
+                container.innerHTML = `<div class="error-message">${message}</div>`;
+            }
+        }
+
+        function clearError(section = 'service') {
+            let containerId;
+            if (section === 'packages') {
+                containerId = 'packagesErrorContainer';
+            } else if (section === 'tripNotes') {
+                containerId = 'tripNotesErrorContainer';
+            } else {
+                containerId = 'serviceErrorContainer';
+            }
+            const container = document.getElementById(containerId);
+            if (container) {
+                container.innerHTML = '';
+            }
+        }
+
+        function displayJSON(data, section = 'service') {
+            let containerId, displayId;
+            if (section === 'packages') {
+                containerId = 'packagesResponseContainer';
+                displayId = 'packagesJsonDisplay';
+            } else if (section === 'tripNotes') {
+                containerId = 'tripNotesResponseContainer';
+                displayId = 'tripNotesJsonDisplay';
+            } else {
+                containerId = 'serviceResponseContainer';
+                displayId = 'serviceJsonDisplay';
+            }
+            const container = document.getElementById(containerId);
+            const display = document.getElementById(displayId);
+            
+            if (!container || !display) return;
+            
+            try {
+                const formatted = JSON.stringify(data, null, 2);
+                display.textContent = formatted;
+                container.style.display = 'block';
+            } catch (e) {
+                display.textContent = 'Error formatting JSON: ' + e.message;
+                container.style.display = 'block';
+            }
+        }
+
+        async function getAccessToken() {
+            const tokenUrl = document.getElementById('tokenUrl').value;
+            const clientId = document.getElementById('clientId').value;
+            const clientSecret = document.getElementById('clientSecret').value;
+            const authMethod = document.getElementById('authMethod').value;
+
+            if (!tokenUrl || !clientId || !clientSecret) {
+                throw new Error('Please fill in all required fields');
+            }
+
+            let headers = {
+                'Accept': 'application/json'
+            };
+
+            let body = null;
+
+            if (authMethod === 'noauth') {
+                // Send client_id, client_secret, and grant_type as headers
+                headers['client_id'] = clientId;
+                headers['client_secret'] = clientSecret;
+                headers['grant_type'] = 'CLIENT_CREDENTIALS';
+            } else {
+                // OAuth 2.0 flow
+                const grantType = document.getElementById('grantType').value;
+                const scope = document.getElementById('scope').value;
+                
+                headers['Content-Type'] = 'application/x-www-form-urlencoded';
+                
+                const params = new URLSearchParams({
+                    grant_type: grantType,
+                    client_id: clientId,
+                    client_secret: clientSecret
+                });
+
+                if (scope) {
+                    params.append('scope', scope);
+                }
+                
+                body = params.toString();
+            }
+
+            // Use proxy if enabled
+            const finalTokenUrl = getProxyUrl(tokenUrl, 'POST');
+            
+            const response = await fetch(finalTokenUrl, {
+                method: 'POST',
+                headers: headers,
+                body: body
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Token request failed: ${response.status} ${response.statusText}\n${errorText}`);
+            }
+
+            const data = await response.json();
+            
+            if (!data.access_token) {
+                throw new Error('No access_token in response. Response: ' + JSON.stringify(data));
+            }
+
+            return data.access_token;
+        }
+
+        async function fetchPackages() {
+            const fetchBtn = document.getElementById('fetchPackagesBtn');
+            const packagesEndpoint = document.getElementById('packagesEndpoint').value;
+            const tokenUrl = document.getElementById('tokenUrl').value;
+            const first = document.getElementById('packagesFirst').value || 20;
+            const offset = document.getElementById('packagesOffset').value || 0;
+
+            // Validate inputs
+            if (!packagesEndpoint || !tokenUrl) {
+                showError('Please fill in all required fields', 'packages');
+                return;
+            }
+
+            // Disable button and show loading
+            fetchBtn.disabled = true;
+            showStatus('🔄 Getting token and fetching packages...', 'loading', 'packages');
+            clearError('packages');
+            document.getElementById('packagesResponseContainer').style.display = 'none';
+
+            try {
+                // Step 1: Get access token
+                if (!accessToken) {
+                    showStatus('🔐 Getting access token from token endpoint...', 'loading', 'packages');
+                    accessToken = await getAccessToken();
+                }
+                showStatus('✅ Token obtained, fetching packages...', 'success', 'packages');
+
+                // Step 2: Build packages URL with pagination
+                const packagesUrl = new URL(packagesEndpoint);
+                packagesUrl.searchParams.set('first', first);
+                packagesUrl.searchParams.set('offset', offset);
+                const finalPackagesUrl = getProxyUrl(packagesUrl.toString(), 'GET');
+                
+                // Step 3: Fetch packages
+                const response = await fetch(finalPackagesUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Packages request failed: ${response.status} ${response.statusText}\n${errorText}`);
+                }
+
+                const data = await response.json();
+                
+                // Display success and JSON
+                showStatus(`✅ Success! Status: ${response.status}`, 'success', 'packages');
+                displayJSON(data, 'packages');
+
+                // Show pagination controls
+                const currentOffset = parseInt(offset);
+                const currentFirst = parseInt(first);
+                const paginationDiv = document.getElementById('packagesPagination');
+                const paginationInfo = document.getElementById('paginationInfo');
+                const prevBtn = document.getElementById('prevPageBtn');
+                const nextBtn = document.getElementById('nextPageBtn');
+                
+                paginationDiv.style.display = 'flex';
+                paginationInfo.textContent = `Showing ${currentOffset + 1}-${currentOffset + currentFirst} (offset: ${currentOffset})`;
+                
+                // Enable/disable pagination buttons
+                prevBtn.disabled = currentOffset === 0;
+                
+                // Check if there might be more results (if we got exactly 'first' results, there might be more)
+                const resultCount = Array.isArray(data) ? data.length : 
+                                  (data.data && Array.isArray(data.data) ? data.data.length :
+                                  (data.packages && Array.isArray(data.packages) ? data.packages.length : 0));
+                nextBtn.disabled = resultCount < currentFirst;
+
+                // Extract voyage codes and populate selector
+                extractVoyageCodes(data);
+
+            } catch (error) {
+                showStatus('❌ Error occurred', 'error', 'packages');
+                
+                let errorMessage = error.message;
+                if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+                    errorMessage = `CORS Error: The browser blocked the request due to Cross-Origin Resource Sharing (CORS) restrictions.\n\n` +
+                        `This happens when the API server doesn't allow requests from browser origins.\n\n` +
+                        `Possible solutions:\n` +
+                        `1. Use a CORS proxy (check the box above)\n` +
+                        `2. Enable CORS on the API server\n` +
+                        `3. Use a backend server to make the API calls\n\n` +
+                        `Original error: ${error.message}`;
+                }
+                
+                showError(`Error: ${errorMessage}`, 'packages');
+                console.error('Full error details:', error);
+            } finally {
+                fetchBtn.disabled = false;
+            }
+        }
+
+        function changePackagesPage(direction) {
+            const currentOffset = parseInt(document.getElementById('packagesOffset').value) || 0;
+            const first = parseInt(document.getElementById('packagesFirst').value) || 20;
+            const newOffset = Math.max(0, currentOffset + (direction * first));
+            document.getElementById('packagesOffset').value = newOffset;
+            fetchPackages();
+        }
+
+        function extractVoyageCodes(packagesData) {
+            const voyageInput = document.getElementById('voyageCode');
+            const voyageDatalist = document.getElementById('voyageCodeList');
+            voyageDatalist.innerHTML = '';
+            
+            // Voyage code pattern: 7 characters = 3 letters (destination) + 3 digits (number) + 1 letter (ship)
+            // Example: SCO018G
+            const voyageCodePattern = /^[A-Z]{3}\d{3}[A-Z]$/;
+            
+            // Function to validate voyage code format
+            function isValidVoyageCode(code) {
+                if (!code || typeof code !== 'string') return false;
+                const trimmed = code.trim();
+                return trimmed.length === 7 && voyageCodePattern.test(trimmed);
+            }
+            
+            let voyageCodes = [];
+            
+            // Look for Package items - the "Name" field in Package items contains the voyage code
+            // Structure: { "Package": [{ "Name": "SCO018G", ... }, ...] }
+            function findPackages(obj) {
+                if (!obj || typeof obj !== 'object') return;
+                
+                // Priority 1: Check for "Package" array (capital P) - this is the main structure
+                if (obj.Package && Array.isArray(obj.Package)) {
+                    obj.Package.forEach(pkg => {
+                        if (pkg && typeof pkg === 'object') {
+                            const nameValue = pkg.Name || pkg.name;
+                            if (nameValue && isValidVoyageCode(nameValue)) {
+                                voyageCodes.push(nameValue.trim());
+                            }
+                        }
+                    });
+                    return; // Found Package array, no need to search further
+                }
+                
+                // Priority 2: Check for "packages" array (lowercase)
+                if (obj.packages && Array.isArray(obj.packages)) {
+                    obj.packages.forEach(pkg => {
+                        if (pkg && typeof pkg === 'object') {
+                            const nameValue = pkg.Name || pkg.name;
+                            if (nameValue && isValidVoyageCode(nameValue)) {
+                                voyageCodes.push(nameValue.trim());
+                            }
+                        }
+                    });
+                    return;
+                }
+                
+                // Priority 3: If root is an array, check each item
+                if (Array.isArray(obj)) {
+                    obj.forEach(item => {
+                        if (item && typeof item === 'object') {
+                            findPackages(item);
+                        }
+                    });
+                    return;
+                }
+                
+                // Priority 4: Recursively search nested objects
+                Object.keys(obj).forEach(key => {
+                    if (key !== 'Package' && typeof obj[key] === 'object' && obj[key] !== null) {
+                        findPackages(obj[key]);
+                    }
+                });
+            }
+            
+            // Start searching for packages
+            findPackages(packagesData);
+            
+            // Remove duplicates and sort
+            voyageCodes = [...new Set(voyageCodes)].sort();
+
+            // Populate datalist for autocomplete
+            voyageCodes.forEach(code => {
+                const option = document.createElement('option');
+                option.value = code;
+                voyageDatalist.appendChild(option);
+            });
+
+            // Always show voyage selection section (even if no codes found, user can enter manually)
+            document.getElementById('voyageSelectionSection').style.display = 'block';
+            
+            // Log for debugging
+            console.log('Extracted voyage codes (7-char format: 3 letters + 3 digits + 1 letter):', voyageCodes);
+            if (voyageCodes.length === 0) {
+                console.log('No voyage codes found. Looking for "Name" fields in Package items that match pattern: 3 letters + 3 digits + 1 letter (e.g., SCO018G)');
+                console.log('Response structure:', packagesData);
+                // Show a helpful message
+                const statusDiv = document.getElementById('packagesStatusIndicator');
+                const currentStatus = statusDiv.innerHTML;
+                statusDiv.innerHTML = currentStatus + ' <span style="color: #856404; margin-left: 10px;">⚠️ No voyage codes auto-detected. Check console for details. You can enter a voyage code manually (format: 3 letters + 3 digits + 1 letter, e.g., SCO018G).</span>';
+            } else {
+                // Show success message with count
+                const statusDiv = document.getElementById('packagesStatusIndicator');
+                const currentStatus = statusDiv.innerHTML;
+                statusDiv.innerHTML = currentStatus + ` <span style="color: #155724; margin-left: 10px;">✓ Found ${voyageCodes.length} voyage code(s) from Package "Name" fields</span>`;
+            }
+        }
+
+        function showVoyageSelection() {
+            document.getElementById('voyageSelectionSection').style.display = 'block';
+            document.getElementById('showVoyageBtn').style.display = 'none';
+            // Scroll to voyage selection section
+            document.getElementById('voyageSelectionSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        let serviceData = null; // Store service data for trip notes
+
+        async function fetchServiceDetails() {
+            const fetchBtn = document.getElementById('fetchServiceBtn');
+            const serviceEndpoint = document.getElementById('serviceEndpoint').value;
+            let voyageCode = document.getElementById('voyageCode').value.toUpperCase().trim();
+            const currency = document.getElementById('currency').value;
+            const tokenUrl = document.getElementById('tokenUrl').value;
+
+            // Validate voyage code format: 3 letters + 3 digits + 1 letter
+            const voyageCodePattern = /^[A-Z]{3}\d{3}[A-Z]$/;
+            if (!voyageCodePattern.test(voyageCode)) {
+                showError('Voyage code must be in format: 3 letters + 3 numbers + 1 letter (e.g., SCO018G)', 'service');
+                return;
+            }
+
+            // Update input with uppercase value
+            document.getElementById('voyageCode').value = voyageCode;
+
+            // Validate inputs
+            if (!serviceEndpoint || !voyageCode || !currency || !tokenUrl) {
+                showError('Please fill in all required fields', 'service');
+                return;
+            }
+
+            // Disable button and show loading
+            fetchBtn.disabled = true;
+            showStatus('🔄 Fetching voyage details...', 'loading', 'service');
+            clearError('service');
+            document.getElementById('serviceResponseContainer').style.display = 'none';
+            document.getElementById('serviceTableContainer').style.display = 'none';
+
+            try {
+                // Ensure we have a token
+                if (!accessToken) {
+                    showStatus('🔐 Getting access token...', 'loading', 'service');
+                    accessToken = await getAccessToken();
+                }
+
+                // Build service URL with voyage and currency
+                const serviceUrl = new URL(serviceEndpoint);
+                serviceUrl.searchParams.set('voyage', voyageCode);
+                serviceUrl.searchParams.set('currency', currency);
+                const finalServiceUrl = getProxyUrl(serviceUrl.toString(), 'GET');
+                
+                // Fetch service details
+                const response = await fetch(finalServiceUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Service request failed: ${response.status} ${response.statusText}\n${errorText}`);
+                }
+
+                const data = await response.json();
+                serviceData = data; // Store for trip notes
+                
+                // Display success
+                showStatus(`✅ Success! Status: ${response.status}`, 'success', 'service');
+                
+                // Display data in table
+                displayServiceTable(data);
+
+            } catch (error) {
+                showStatus('❌ Error occurred', 'error', 'service');
+                
+                let errorMessage = error.message;
+                if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+                    errorMessage = `CORS Error: The browser blocked the request due to Cross-Origin Resource Sharing (CORS) restrictions.\n\n` +
+                        `This happens when the API server doesn't allow requests from browser origins.\n\n` +
+                        `Possible solutions:\n` +
+                        `1. Use a CORS proxy (check the box above)\n` +
+                        `2. Enable CORS on the API server\n` +
+                        `3. Use a backend server to make the API calls\n\n` +
+                        `Original error: ${error.message}`;
+                }
+                
+                showError(`Error: ${errorMessage}`, 'service');
+                console.error('Full error details:', error);
+            } finally {
+                fetchBtn.disabled = false;
+            }
+        }
+
+        function displayServiceTable(data) {
+            const tableBody = document.getElementById('serviceTableBody');
+            tableBody.innerHTML = '';
+            
+            console.log('Service data structure:', data);
+            
+            // Find pricing data - this should be an array with PriceCategoryName, GrossPrice, etc.
+            let pricingData = [];
+            
+            // Try to find pricing data in various structures
+            if (Array.isArray(data)) {
+                pricingData = data;
+            } else if (data.Service && Array.isArray(data.Service)) {
+                pricingData = data.Service;
+            } else if (data.service && Array.isArray(data.service)) {
+                pricingData = data.service;
+            } else if (data.Pricing && Array.isArray(data.Pricing)) {
+                pricingData = data.Pricing;
+            } else if (data.pricing && Array.isArray(data.pricing)) {
+                pricingData = data.pricing;
+            } else if (data.data && Array.isArray(data.data)) {
+                pricingData = data.data;
+            } else {
+                // Look for any array that has PriceCategoryName
+                for (let key in data) {
+                    if (Array.isArray(data[key]) && data[key].length > 0) {
+                        const firstItem = data[key][0];
+                        if (firstItem && (firstItem.PriceCategoryName || firstItem.priceCategoryName || 
+                            firstItem.GrossPrice || firstItem.grossPrice)) {
+                            pricingData = data[key];
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Find CabinInformation array
+            let cabinInformation = [];
+            if (data.CabinInformation && Array.isArray(data.CabinInformation)) {
+                cabinInformation = data.CabinInformation;
+            } else if (data.cabinInformation && Array.isArray(data.cabinInformation)) {
+                cabinInformation = data.cabinInformation;
+            } else if (data.Cabin && Array.isArray(data.Cabin)) {
+                cabinInformation = data.Cabin;
+            } else if (data.cabin && Array.isArray(data.cabin)) {
+                cabinInformation = data.cabin;
+            }
+
+            console.log('Pricing data:', pricingData.length, pricingData);
+            console.log('CabinInformation:', cabinInformation.length, cabinInformation);
+
+            if (pricingData.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 20px;">No pricing data found in response. Check console for data structure.</td></tr>';
+                document.getElementById('serviceTableContainer').style.display = 'block';
+                return;
+            }
+
+            // Create a map of CabinInformation by PriceCategoryId for quick lookup
+            const cabinMap = {};
+            cabinInformation.forEach(cabin => {
+                const priceCategoryId = cabin.PriceCategoryId || cabin.priceCategoryId;
+                if (priceCategoryId) {
+                    if (!cabinMap[priceCategoryId]) {
+                        cabinMap[priceCategoryId] = [];
+                    }
+                    cabinMap[priceCategoryId].push(cabin);
+                }
+            });
+
+            // Process pricing data and join with CabinInformation
+            pricingData.forEach(pricing => {
+                const priceCategoryId = pricing.PriceCategoryId || pricing.priceCategoryId;
+                const priceCategoryName = pricing.PriceCategoryName || pricing.priceCategoryName;
+                
+                // Find matching cabin information where PriceCategoryName = CabinCategory
+                const matchingCabins = cabinInformation.filter(cabin => {
+                    const cabinCategory = cabin.CabinCategory || cabin.cabinCategory;
+                    return cabinCategory === priceCategoryName;
+                });
+
+                // If we have matching cabins, create a row for each, otherwise create one row
+                if (matchingCabins.length > 0) {
+                    matchingCabins.forEach(cabin => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${priceCategoryName || '-'}</td>
+                            <td>${pricing.CurrencyIsoCode || pricing.currencyIsoCode || '-'}</td>
+                            <td>${pricing.GrossPrice || pricing.grossPrice || '-'}</td>
+                            <td>${pricing.PromotionValue !== undefined ? pricing.PromotionValue : (pricing.promotionValue !== undefined ? pricing.promotionValue : '-')}</td>
+                            <td>${pricing.PromotionType || pricing.promotionType || '-'}</td>
+                            <td>${pricing.AdditionalPromotionPrice !== undefined ? pricing.AdditionalPromotionPrice : (pricing.additionalPromotionPrice !== undefined ? pricing.additionalPromotionPrice : '-')}</td>
+                            <td>${pricing.NetPrice || pricing.netPrice || '-'}</td>
+                            <td>${cabin.UnitAvailable !== undefined ? cabin.UnitAvailable : (cabin.unitAvailable !== undefined ? cabin.unitAvailable : '-')}</td>
+                        `;
+                        tableBody.appendChild(tr);
+                    });
+                } else {
+                    // No matching cabin, still show pricing data
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${priceCategoryName || '-'}</td>
+                        <td>${pricing.CurrencyIsoCode || pricing.currencyIsoCode || '-'}</td>
+                        <td>${pricing.GrossPrice || pricing.grossPrice || '-'}</td>
+                        <td>${pricing.PromotionValue !== undefined ? pricing.PromotionValue : (pricing.promotionValue !== undefined ? pricing.promotionValue : '-')}</td>
+                        <td>${pricing.PromotionType || pricing.promotionType || '-'}</td>
+                        <td>${pricing.AdditionalPromotionPrice !== undefined ? pricing.AdditionalPromotionPrice : (pricing.additionalPromotionPrice !== undefined ? pricing.additionalPromotionPrice : '-')}</td>
+                        <td>${pricing.NetPrice || pricing.netPrice || '-'}</td>
+                        <td>-</td>
+                    `;
+                    tableBody.appendChild(tr);
+                }
+            });
+
+            document.getElementById('serviceTableContainer').style.display = 'block';
+        }
+
+        function displayTripNotesTable(data) {
+            const tableBody = document.getElementById('tripNotesTableBody');
+            tableBody.innerHTML = '';
+            
+            console.log('Trip notes data structure:', data);
+            
+            // Find day/itinerary data in the response
+            let days = [];
+            
+            // Try various structures for itinerary/days data
+            if (data.Itinerary && Array.isArray(data.Itinerary)) {
+                days = data.Itinerary;
+            } else if (data.itinerary && Array.isArray(data.itinerary)) {
+                days = data.itinerary;
+            } else if (data.Day && Array.isArray(data.Day)) {
+                days = data.Day;
+            } else if (data.day && Array.isArray(data.day)) {
+                days = data.day;
+            } else if (data.Days && Array.isArray(data.Days)) {
+                days = data.Days;
+            } else if (data.days && Array.isArray(data.days)) {
+                days = data.days;
+            } else if (data.Package && Array.isArray(data.Package)) {
+                // Package might contain itinerary
+                data.Package.forEach(pkg => {
+                    if (pkg.Itinerary && Array.isArray(pkg.Itinerary)) {
+                        days = days.concat(pkg.Itinerary);
+                    } else if (pkg.itinerary && Array.isArray(pkg.itinerary)) {
+                        days = days.concat(pkg.itinerary);
+                    }
+                });
+            } else if (data.data && Array.isArray(data.data)) {
+                // Check if data contains itinerary
+                data.data.forEach(item => {
+                    if (item.Itinerary && Array.isArray(item.Itinerary)) {
+                        days = days.concat(item.Itinerary);
+                    } else if (item.itinerary && Array.isArray(item.itinerary)) {
+                        days = days.concat(item.itinerary);
+                    } else if (item.Day || item.day) {
+                        days.push(item);
+                    }
+                });
+            } else if (Array.isArray(data)) {
+                days = data;
+            } else {
+                // Try to find any array property that might contain day data
+                for (let key in data) {
+                    if (Array.isArray(data[key]) && data[key].length > 0) {
+                        const firstItem = data[key][0];
+                        if (firstItem && (firstItem.Day || firstItem.day || firstItem.DayNumber || 
+                            firstItem.dayNumber || firstItem.Details || firstItem.details || 
+                            firstItem.Description || firstItem.description)) {
+                            days = data[key];
+                            break;
+                        }
+                    }
+                }
+            }
+
+            console.log('Found days:', days.length, days);
+
+            if (days.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="2" style="text-align: center; padding: 20px;">No day/itinerary data found in response. Check console for data structure.</td></tr>';
+                document.getElementById('tripNotesTableContainer').style.display = 'block';
+                return;
+            }
+
+            days.forEach((day, index) => {
+                const tr = document.createElement('tr');
+                
+                // Extract day number - try various field names
+                let dayNumber = day.Day || day.day || day.DayNumber || day.dayNumber || 
+                               day.DayNumber__c || day.Day_Number || day.number || 
+                               day.Number || (index + 1);
+                
+                // Format as "Day X"
+                if (typeof dayNumber === 'number') {
+                    dayNumber = `Day ${dayNumber}`;
+                } else if (typeof dayNumber === 'string' && !dayNumber.toLowerCase().startsWith('day')) {
+                    dayNumber = `Day ${dayNumber}`;
+                }
+                
+                // Extract details - try various field names
+                let details = day.Details || day.details || day.Description || day.description || 
+                             day.Details__c || day.Description__c || day.Value || day.value || 
+                             day.Content || day.content || day.Text || day.text || 
+                             day.Note || day.note || '-';
+                
+                // If details is an object, try to stringify or get a meaningful value
+                if (typeof details === 'object' && details !== null) {
+                    if (details.text) details = details.text;
+                    else if (details.content) details = details.content;
+                    else if (details.value) details = details.value;
+                    else details = JSON.stringify(details);
+                }
+                
+                // Clean up HTML if present
+                if (typeof details === 'string' && details.includes('<')) {
+                    // Remove HTML tags but keep text content
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = details;
+                    details = tempDiv.textContent || tempDiv.innerText || details;
+                }
+                
+                tr.innerHTML = `
+                    <td>${dayNumber}</td>
+                    <td>${details}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            document.getElementById('tripNotesTableContainer').style.display = 'block';
+        }
+
+        async function fetchTripNotes() {
+            if (!serviceData) {
+                showError('Please fetch voyage details first', 'tripNotes');
+                return;
+            }
+
+            // Find StartDate in service data
+            let startDate = null;
+            
+            // Try different possible locations for StartDate
+            if (serviceData.StartDate) {
+                startDate = serviceData.StartDate;
+            } else if (serviceData.startDate) {
+                startDate = serviceData.startDate;
+            } else if (serviceData.start_date) {
+                startDate = serviceData.start_date;
+            } else if (serviceData.Expedition && serviceData.Expedition.StartDate) {
+                startDate = serviceData.Expedition.StartDate;
+            } else if (serviceData.expedition && serviceData.expedition.startDate) {
+                startDate = serviceData.expedition.startDate;
+            }
+
+            if (!startDate) {
+                showError('StartDate not found in service response. Cannot fetch trip notes.', 'tripNotes');
+                return;
+            }
+
+            // Format date to YYYY-MM-DD
+            let formattedDate = startDate;
+            if (startDate instanceof Date) {
+                formattedDate = startDate.toISOString().split('T')[0];
+            } else if (typeof startDate === 'string') {
+                // Try to parse and format
+                const date = new Date(startDate);
+                if (!isNaN(date.getTime())) {
+                    formattedDate = date.toISOString().split('T')[0];
+                }
+            }
+
+            const tripNotesBtn = document.getElementById('tripNotesBtn');
+            const packagesEndpoint = 'https://aurora-website-app-26ta7u.5sc6y6-4.usa-e2.cloudhub.io/api/packages';
+            
+            tripNotesBtn.disabled = true;
+            showStatus('🔄 Fetching trip notes...', 'loading', 'tripNotes');
+            clearError('tripNotes');
+            document.getElementById('tripNotesResponseContainer').style.display = 'none';
+            document.getElementById('tripNotesTableContainer').style.display = 'none';
+            document.getElementById('tripNotesSection').style.display = 'block';
+
+            try {
+                // Build packages URL with expeditionDate
+                const packagesUrl = new URL(packagesEndpoint);
+                packagesUrl.searchParams.set('first', '20');
+                packagesUrl.searchParams.set('offset', '0');
+                packagesUrl.searchParams.set('expeditionDate', formattedDate);
+                const finalPackagesUrl = getProxyUrl(packagesUrl.toString(), 'GET');
+                
+                // Fetch trip notes
+                const response = await fetch(finalPackagesUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Trip notes request failed: ${response.status} ${response.statusText}\n${errorText}`);
+                }
+
+                const data = await response.json();
+                
+                // Display success and table
+                showStatus(`✅ Success! Status: ${response.status}`, 'success', 'tripNotes');
+                displayTripNotesTable(data);
+
+            } catch (error) {
+                showStatus('❌ Error occurred', 'error', 'tripNotes');
+                
+                let errorMessage = error.message;
+                if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+                    errorMessage = `CORS Error: The browser blocked the request due to Cross-Origin Resource Sharing (CORS) restrictions.\n\n` +
+                        `This happens when the API server doesn't allow requests from browser origins.\n\n` +
+                        `Possible solutions:\n` +
+                        `1. Use a CORS proxy (check the box above)\n` +
+                        `2. Enable CORS on the API server\n` +
+                        `3. Use a backend server to make the API calls\n\n` +
+                        `Original error: ${error.message}`;
+                }
+                
+                showError(`Error: ${errorMessage}`, 'tripNotes');
+                console.error('Full error details:', error);
+            } finally {
+                tripNotesBtn.disabled = false;
+            }
+        }
+
+        // Initialize hardcoded API configuration values
+        window.addEventListener('load', function() {
+            // Hardcoded values
+            const HARDCODED_TOKEN_URL = 'https://mule-oauth-token-provider-26ta7u.5sc6y6-4.usa-e2.cloudhub.io/token';
+            const HARDCODED_CLIENT_ID = 'auroraAPILogin';
+            const HARDCODED_CLIENT_SECRET = '7#1@7syg7S2vHH7V';
+            const HARDCODED_PROXY_URL = 'https://cors-proxy.dominic-495.workers.dev/proxy';
+            const HARDCODED_SERVICE_ENDPOINT = 'https://aurora-website-app-26ta7u.5sc6y6-4.usa-e2.cloudhub.io/api/service';
+            
+            // Set hardcoded values
+            document.getElementById('authMethod').value = 'noauth';
+            toggleAuthFields();
+            document.getElementById('tokenUrl').value = HARDCODED_TOKEN_URL;
+            document.getElementById('clientId').value = HARDCODED_CLIENT_ID;
+            document.getElementById('clientSecret').value = HARDCODED_CLIENT_SECRET;
+            document.getElementById('serviceEndpoint').value = HARDCODED_SERVICE_ENDPOINT;
+            document.getElementById('useProxy').checked = true;
+            document.getElementById('proxyUrl').value = HARDCODED_PROXY_URL;
+            toggleProxyFields(); // This will show the proxy URL field
+            
+            // Load saved currency preference (only thing user can change)
+            const savedCurrency = localStorage.getItem('api_currency');
+            if (savedCurrency) document.getElementById('currency').value = savedCurrency;
+        });
+
+        // Save credentials to localStorage on change (optional)
+        document.getElementById('authMethod').addEventListener('change', function() {
+            localStorage.setItem('api_auth_method', this.value);
+        });
+        document.getElementById('clientId').addEventListener('change', function() {
+            localStorage.setItem('api_client_id', this.value);
+        });
+        document.getElementById('clientSecret').addEventListener('change', function() {
+            localStorage.setItem('api_client_secret', this.value);
+        });
+        document.getElementById('tokenUrl').addEventListener('change', function() {
+            localStorage.setItem('api_token_url', this.value);
+        });
+        document.getElementById('serviceEndpoint').addEventListener('change', function() {
+            localStorage.setItem('api_service_endpoint', this.value);
+        });
+        document.getElementById('useProxy').addEventListener('change', function() {
+            localStorage.setItem('api_use_proxy', this.checked);
+            toggleProxyFields();
+        });
+        document.getElementById('proxyUrl').addEventListener('change', function() {
+            localStorage.setItem('api_proxy_url', this.value);
+        });
+        document.getElementById('currency').addEventListener('change', function() {
+            localStorage.setItem('api_currency', this.value);
+        });
+        
+        // Voyage code input validation - auto uppercase and format check
+        document.getElementById('voyageCode').addEventListener('input', function(e) {
+            let value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            if (value.length > 7) value = value.substring(0, 7);
+            e.target.value = value;
+        });
+    </script>
+</body>
+</html>
