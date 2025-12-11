@@ -346,127 +346,93 @@
             top: 0;
             width: 100%;
             height: 100%;
-            overflow: auto;
             background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s;
         }
 
         .modal-content {
             background-color: white;
-            margin: 5% auto;
-            padding: 0;
+            margin: 15% auto;
+            padding: 30px;
             border-radius: 12px;
             width: 90%;
-            max-width: 900px;
-            max-height: 85vh;
-            overflow-y: auto;
+            max-width: 500px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.3s;
         }
 
         .modal-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px 30px;
-            border-radius: 12px 12px 0 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 20px;
         }
 
-        .modal-header h2 {
+        .modal-header h3 {
             margin: 0;
-            font-size: 24px;
+            color: #333;
+            font-size: 1.5em;
         }
 
         .close-modal {
-            color: white;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
             background: none;
             border: none;
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
             padding: 0;
             width: 30px;
             height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            line-height: 30px;
         }
 
         .close-modal:hover {
-            opacity: 0.7;
+            color: #000;
         }
 
         .modal-body {
-            padding: 30px;
-        }
-
-        .voyage-map {
-            width: 100%;
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .location-info {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .location-item {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .location-label {
-            font-weight: 600;
-            color: #667eea;
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
-
-        .location-value {
-            font-size: 16px;
-            color: #333;
-        }
-
-        .itinerary-section {
-            margin-top: 30px;
-        }
-
-        .itinerary-section h3 {
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 20px;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 10px;
-        }
-
-        .day-item {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-
-        .day-header {
-            font-weight: 600;
-            color: #667eea;
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
-
-        .day-content {
             color: #555;
+            font-size: 16px;
             line-height: 1.6;
+        }
+
+        .modal-footer {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .modal-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         @media (max-width: 768px) {
@@ -482,10 +448,8 @@
             }
             .modal-content {
                 width: 95%;
-                margin: 10% auto;
-            }
-            .location-info {
-                grid-template-columns: 1fr;
+                margin: 20% auto;
+                padding: 20px;
             }
         }
     </style>
@@ -615,12 +579,12 @@
                 <div id="serviceStatusIndicator"></div>
                 <div id="serviceErrorContainer"></div>
                 <div id="serviceTableContainer" style="display: none;">
-                    <div style="display: flex; gap: 15px; margin-bottom: 15px;">
-                        <div id="voyageCodeHeader" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 20px; border-radius: 8px; font-size: 18px; font-weight: 600; flex: 1; display: flex; align-items: center;">
-                            Voyage Code: <span id="voyageCodeDisplay"></span>
-                        </div>
-                        <button class="btn" onclick="viewTripMap()" id="tripMapBtn" style="background: #28a745; flex: 1; margin: 0;">
-                            🗺️ View Trip Map
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                        <button class="btn" onclick="fetchActivityComponents()" id="activityComponentsBtn" style="background: #17a2b8; flex: 1; min-width: 200px;">
+                            🎯 Fetch Activity Components
+                        </button>
+                        <button class="btn" onclick="fetchVoyageMap()" id="voyageMapBtn" style="background: #28a745; flex: 1; min-width: 200px;">
+                        🗺️ View Voyage Map
                         </button>
                     </div>
                     <div style="overflow-x: auto;">
@@ -647,6 +611,88 @@
                 </div>
             </div>
 
+            <div class="response-section" id="activityComponentsSection" style="display: none;">
+                <h2>Activity Components</h2>
+                <div id="activityComponentsStatusIndicator"></div>
+                <div id="activityComponentsErrorContainer"></div>
+                <div id="activityComponentsTableContainer" style="display: none;">
+                    <div style="overflow-x: auto;">
+                        <table class="data-table" id="activityComponentsDataTable">
+                            <thead>
+                                <tr>
+                                    <th>Activity Name</th>
+                                    <th>Currency</th>
+                                    <th>Price</th>
+                                    <th>Units Available</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activityComponentsTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="response-container" id="activityComponentsResponseContainer" style="display: none;">
+                    <div class="json-display" id="activityComponentsJsonDisplay"></div>
+                </div>
+            </div>
+
+            <div class="response-section" id="tripNotesSection" style="display: none;">
+                <h2>Trip Notes</h2>
+                <div id="tripNotesStatusIndicator"></div>
+                <div id="tripNotesErrorContainer"></div>
+                <div id="tripNotesTableContainer" style="display: none;">
+                    <div style="overflow-x: auto;">
+                        <table class="data-table" id="tripNotesDataTable">
+                            <thead>
+                                <tr>
+                                    <th>Day #</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tripNotesTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="response-container" id="tripNotesResponseContainer" style="display: none;">
+                    <div class="json-display" id="tripNotesJsonDisplay"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Activity Components Error -->
+    <!-- Modal for Activity Components Error - Hidden by default -->
+    <div id="activityComponentsModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⚠️ Activity Components Not Found</h3>
+                <button class="close-modal" onclick="closeActivityComponentsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Could not find Activity Components for this voyage.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn" onclick="closeActivityComponentsModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Voyage Map - Hidden by default -->
+    <div id="voyageMapModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 67.5%; width: 67.5%; max-height: 67.5vh;">
+            <div class="modal-header">
+                <h3>🗺️ Voyage Map</h3>
+                <button class="close-modal" onclick="closeVoyageMapModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 0; text-align: center;">
+                <div id="voyageMapContainer" style="width: 100%; height: 52.5vh; min-height: 375px; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                    <p style="color: #666;">Loading map...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn" onclick="closeVoyageMapModal()">Close</button>
+            </div>
         </div>
     </div>
 
@@ -711,6 +757,8 @@
                 indicatorId = 'packagesStatusIndicator';
             } else if (section === 'tripNotes') {
                 indicatorId = 'tripNotesStatusIndicator';
+            } else if (section === 'activityComponents') {
+                indicatorId = 'activityComponentsStatusIndicator';
             } else {
                 indicatorId = 'serviceStatusIndicator';
             }
@@ -726,6 +774,8 @@
                 containerId = 'packagesErrorContainer';
             } else if (section === 'tripNotes') {
                 containerId = 'tripNotesErrorContainer';
+            } else if (section === 'activityComponents') {
+                containerId = 'activityComponentsErrorContainer';
             } else {
                 containerId = 'serviceErrorContainer';
             }
@@ -741,6 +791,8 @@
                 containerId = 'packagesErrorContainer';
             } else if (section === 'tripNotes') {
                 containerId = 'tripNotesErrorContainer';
+            } else if (section === 'activityComponents') {
+                containerId = 'activityComponentsErrorContainer';
             } else {
                 containerId = 'serviceErrorContainer';
             }
@@ -758,6 +810,9 @@
             } else if (section === 'tripNotes') {
                 containerId = 'tripNotesResponseContainer';
                 displayId = 'tripNotesJsonDisplay';
+            } else if (section === 'activityComponents') {
+                containerId = 'activityComponentsResponseContainer';
+                displayId = 'activityComponentsJsonDisplay';
             } else {
                 containerId = 'serviceResponseContainer';
                 displayId = 'serviceJsonDisplay';
@@ -1055,7 +1110,6 @@
         }
 
         let serviceData = null; // Store service data for trip notes
-        let tripMapUrl = null; // Store trip map URL
 
         async function fetchServiceDetails() {
             const fetchBtn = document.getElementById('fetchServiceBtn');
@@ -1080,15 +1134,18 @@
                 return;
             }
 
-            // Reset map URL for new voyage
-            tripMapUrl = null;
-            
             // Disable button and show loading
             fetchBtn.disabled = true;
             showStatus('🔄 Fetching voyage details...', 'loading', 'service');
             clearError('service');
             document.getElementById('serviceResponseContainer').style.display = 'none';
             document.getElementById('serviceTableContainer').style.display = 'none';
+            
+            // Clear any existing Activity Components when searching for new voyage
+            document.getElementById('activityComponentsSection').style.display = 'none';
+            document.getElementById('activityComponentsTableContainer').style.display = 'none';
+            document.getElementById('activityComponentsTableBody').innerHTML = '';
+            clearError('activityComponents');
 
             try {
                 // Ensure we have a token
@@ -1126,9 +1183,6 @@
                 
                 // Display data in table
                 displayServiceTable(data);
-                
-                // Automatically fetch packages to get map URL
-                await fetchPackagesForMap(data);
 
             } catch (error) {
                 showStatus('❌ Error occurred', 'error', 'service');
@@ -1154,13 +1208,6 @@
         function displayServiceTable(data) {
             const tableBody = document.getElementById('serviceTableBody');
             tableBody.innerHTML = '';
-            
-            // Display voyage code in header
-            const voyageCode = document.getElementById('voyageCode').value;
-            const voyageCodeDisplay = document.getElementById('voyageCodeDisplay');
-            if (voyageCodeDisplay) {
-                voyageCodeDisplay.textContent = voyageCode;
-            }
             
             console.log('Service data structure:', data);
             
@@ -1210,9 +1257,8 @@
             console.log('CabinInformation:', cabinInformation.length, cabinInformation);
 
             if (pricingData.length === 0) {
-                // Show error modal instead of empty table
-                showErrorModal('Voyage Code not found. Please correct or try again.');
-                document.getElementById('serviceTableContainer').style.display = 'none';
+                tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 20px;">No pricing data found in response. Check console for data structure.</td></tr>';
+                document.getElementById('serviceTableContainer').style.display = 'block';
                 return;
             }
 
@@ -1272,330 +1318,9 @@
                 }
             });
 
-            // Check if we actually created any rows
-            if (tableBody.children.length === 0) {
-                showErrorModal('Voyage Code not found. Please correct or try again.');
-                document.getElementById('serviceTableContainer').style.display = 'none';
-                return;
-            }
-
             document.getElementById('serviceTableContainer').style.display = 'block';
         }
 
-        async function fetchPackagesForMap(serviceData) {
-            try {
-                // Find StartDate in service data
-                let startDate = null;
-                
-                // Check if serviceData is an array (Service array)
-                if (Array.isArray(serviceData) && serviceData.length > 0) {
-                    const firstService = serviceData[0];
-                    startDate = firstService.StartDate || firstService.startDate || firstService.start_date;
-                } else if (serviceData.Service && Array.isArray(serviceData.Service) && serviceData.Service.length > 0) {
-                    const firstService = serviceData.Service[0];
-                    startDate = firstService.StartDate || firstService.startDate || firstService.start_date;
-                } else {
-                    if (serviceData.StartDate) {
-                        startDate = serviceData.StartDate;
-                    } else if (serviceData.startDate) {
-                        startDate = serviceData.startDate;
-                    } else if (serviceData.start_date) {
-                        startDate = serviceData.start_date;
-                    } else if (serviceData.Service && serviceData.Service.StartDate) {
-                        startDate = serviceData.Service.StartDate;
-                    }
-                }
-
-                if (!startDate) {
-                    console.warn('StartDate not found, cannot fetch map');
-                    return;
-                }
-
-                // Format date to YYYY-MM-DD
-                let formattedDate = startDate;
-                if (typeof startDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(startDate.trim())) {
-                    formattedDate = startDate.trim();
-                } else if (startDate instanceof Date) {
-                    formattedDate = startDate.toISOString().split('T')[0];
-                } else if (typeof startDate === 'string') {
-                    const date = new Date(startDate);
-                    if (!isNaN(date.getTime())) {
-                        formattedDate = date.toISOString().split('T')[0];
-                    } else {
-                        const dateMatch = startDate.match(/(\d{4}-\d{2}-\d{2})/);
-                        if (dateMatch) {
-                            formattedDate = dateMatch[1];
-                        }
-                    }
-                }
-
-                // Get current voyage code
-                const currentVoyageCode = document.getElementById('voyageCode').value.toUpperCase().trim();
-
-                // Build packages URL with expeditionDate
-                const packagesEndpoint = 'https://aurora-website-app-26ta7u.5sc6y6-4.usa-e2.cloudhub.io/api/packages';
-                const packagesUrl = new URL(packagesEndpoint);
-                packagesUrl.searchParams.set('first', '20');
-                packagesUrl.searchParams.set('offset', '0');
-                packagesUrl.searchParams.set('expeditionDate', formattedDate);
-                const finalPackagesUrl = getProxyUrl(packagesUrl.toString(), 'GET');
-                
-                // Fetch packages
-                const response = await fetch(finalPackagesUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`,
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!response.ok) {
-                    console.warn('Failed to fetch packages for map:', response.status);
-                    return;
-                }
-
-                const data = await response.json();
-                
-                // Find Package array
-                let packages = [];
-                if (data.Package && Array.isArray(data.Package)) {
-                    packages = data.Package;
-                } else if (data.package && Array.isArray(data.package)) {
-                    packages = data.package;
-                } else if (data.Packages && Array.isArray(data.Packages)) {
-                    packages = data.Packages;
-                } else if (data.packages && Array.isArray(data.packages)) {
-                    packages = data.packages;
-                } else if (data.data && Array.isArray(data.data)) {
-                    packages = data.data;
-                } else if (Array.isArray(data)) {
-                    packages = data;
-                }
-
-                // Find package matching the current voyage code (check Name field)
-                for (let pkg of packages) {
-                    const packageName = (pkg.Name || pkg.name || '').toString().toUpperCase().trim();
-                    if (packageName === currentVoyageCode) {
-                        // Found matching package, extract Map_URL
-                        tripMapUrl = pkg.Map_URL || pkg.map_url || pkg.MapUrl || null;
-                        console.log('Found map URL for voyage:', currentVoyageCode, tripMapUrl);
-                        break;
-                    }
-                }
-
-            } catch (error) {
-                console.error('Error fetching packages for map:', error);
-            }
-        }
-
-        function viewTripMap() {
-            if (!tripMapUrl) {
-                const modalBody = document.getElementById('tripMapModalBody');
-                modalBody.innerHTML = '<p style="text-align: center; padding: 20px; color: #dc3545;">Trip map not available. Please ensure voyage details have been fetched successfully.</p>';
-                document.getElementById('tripMapModal').style.display = 'block';
-                return;
-            }
-
-            const modalBody = document.getElementById('tripMapModalBody');
-            modalBody.innerHTML = `<img src="${tripMapUrl}" alt="Trip Map" class="voyage-map" onerror="this.style.display='none'; this.parentElement.innerHTML='<p style=\\'text-align: center; padding: 20px; color: #dc3545;\\'>Failed to load map image.</p>'">`;
-            document.getElementById('tripMapModal').style.display = 'block';
-        }
-
-        function closeTripMapModal() {
-            document.getElementById('tripMapModal').style.display = 'none';
-        }
-
-        function displayTripNotesModal(data) {
-            const modalBody = document.getElementById('tripNotesModalBody');
-            modalBody.innerHTML = '';
-            
-            console.log('Trip notes data structure:', data);
-            
-            // Get current voyage code to match against
-            const currentVoyageCode = document.getElementById('voyageCode').value.toUpperCase().trim();
-            
-            // Find Package array - try various response structures
-            let packages = [];
-            if (data.Package && Array.isArray(data.Package)) {
-                packages = data.Package;
-            } else if (data.package && Array.isArray(data.package)) {
-                packages = data.package;
-            } else if (data.Packages && Array.isArray(data.Packages)) {
-                packages = data.Packages;
-            } else if (data.packages && Array.isArray(data.packages)) {
-                packages = data.packages;
-            } else if (data.data && Array.isArray(data.data)) {
-                packages = data.data;
-            } else if (data.results && Array.isArray(data.results)) {
-                packages = data.results;
-            } else if (Array.isArray(data)) {
-                packages = data;
-            } else {
-                // Try to find any array property that might contain packages
-                for (let key in data) {
-                    if (Array.isArray(data[key]) && data[key].length > 0) {
-                        const firstItem = data[key][0];
-                        // Check if it looks like a package (has VoyageCode, Name, or Map_URL)
-                        if (firstItem && (firstItem.VoyageCode || firstItem.voyageCode || 
-                            firstItem.Name || firstItem.name || 
-                            firstItem.Map_URL || firstItem.map_url)) {
-                            packages = data[key];
-                            break;
-                        }
-                    }
-                }
-            }
-            
-            console.log('Found packages:', packages.length);
-            
-            if (packages.length === 0) {
-                modalBody.innerHTML = '<p style="text-align: center; padding: 20px;">No package data found in response.</p>';
-                document.getElementById('tripNotesModal').style.display = 'block';
-                return;
-            }
-            
-            // Find package matching the current voyage code
-            let packageData = null;
-            for (let pkg of packages) {
-                // Try multiple field name variations for VoyageCode
-                const voyageCode = (pkg.VoyageCode || pkg.voyageCode || 
-                                   pkg.Voyage_Code || pkg.voyage_code ||
-                                   pkg.Name || pkg.name || '').toString().toUpperCase().trim();
-                if (voyageCode === currentVoyageCode) {
-                    packageData = pkg;
-                    console.log('Found matching package for voyage code:', currentVoyageCode, pkg);
-                    break;
-                }
-            }
-            
-            // If no match found, use first package as fallback
-            if (!packageData && packages.length > 0) {
-                packageData = packages[0];
-                console.warn('No matching VoyageCode found, using first package');
-            }
-            
-            if (!packageData) {
-                modalBody.innerHTML = '<p style="text-align: center; padding: 20px;">No matching package found for voyage code: ' + currentVoyageCode + '</p>';
-                document.getElementById('tripNotesModal').style.display = 'block';
-                return;
-            }
-            
-            // Extract Map_URL
-            const mapUrl = packageData.Map_URL || packageData.map_url || packageData.MapUrl || null;
-            
-            // Extract Start and End Locations
-            const startLocation = packageData.PackageStartLocation?.FullLocationName || 
-                                 packageData.packageStartLocation?.fullLocationName ||
-                                 packageData.PackageStartLocation?.fullLocationName ||
-                                 packageData.packageStartLocation?.FullLocationName || 
-                                 '-';
-            
-            const endLocation = packageData.PackageEndLocation?.FullLocationName || 
-                               packageData.packageEndLocation?.fullLocationName ||
-                               packageData.PackageEndLocation?.fullLocationName ||
-                               packageData.packageEndLocation?.FullLocationName || 
-                               '-';
-            
-            // Extract Days array
-            let days = [];
-            if (packageData.Days && Array.isArray(packageData.Days)) {
-                days = packageData.Days;
-            } else if (packageData.days && Array.isArray(packageData.days)) {
-                days = packageData.days;
-            } else if (packageData.Day && Array.isArray(packageData.Day)) {
-                days = packageData.Day;
-            } else if (packageData.day && Array.isArray(packageData.day)) {
-                days = packageData.day;
-            }
-            
-            // Sort days by Day number
-            days.sort((a, b) => {
-                const dayA = parseInt(a.Day || a.day || a.DayNumber || a.dayNumber || 0);
-                const dayB = parseInt(b.Day || b.day || b.DayNumber || b.dayNumber || 0);
-                return dayA - dayB;
-            });
-            
-            // Build modal content
-            let html = '';
-            
-            // Map image
-            if (mapUrl) {
-                html += `<img src="${mapUrl}" alt="Voyage Map" class="voyage-map" onerror="this.style.display='none'">`;
-            }
-            
-            // Start and End Locations
-            html += `
-                <div class="location-info">
-                    <div class="location-item">
-                        <div class="location-label">Start Location</div>
-                        <div class="location-value">${startLocation}</div>
-                    </div>
-                    <div class="location-item">
-                        <div class="location-label">End Location</div>
-                        <div class="location-value">${endLocation}</div>
-                    </div>
-                </div>
-            `;
-            
-            // Day by Day Itinerary
-            if (days.length > 0) {
-                html += '<div class="itinerary-section"><h3>Day by Day Itinerary</h3>';
-                
-                days.forEach((day) => {
-                    const dayNumber = day.Day || day.day || day.DayNumber || day.dayNumber || '-';
-                    const dayValue = day.Value || day.value || day.Details || day.details || 
-                                   day.Description || day.description || '-';
-                    
-                    // Clean up HTML if present
-                    let cleanValue = dayValue;
-                    if (typeof cleanValue === 'string' && cleanValue.includes('<')) {
-                        const tempDiv = document.createElement('div');
-                        tempDiv.innerHTML = cleanValue;
-                        cleanValue = tempDiv.textContent || tempDiv.innerText || cleanValue;
-                    }
-                    
-                    html += `
-                        <div class="day-item">
-                            <div class="day-header">Day ${dayNumber}</div>
-                            <div class="day-content">${cleanValue}</div>
-                        </div>
-                    `;
-                });
-                
-                html += '</div>';
-            } else {
-                html += '<div class="itinerary-section"><h3>Day by Day Itinerary</h3><p>No itinerary data available.</p></div>';
-            }
-            
-            modalBody.innerHTML = html;
-            document.getElementById('tripNotesModal').style.display = 'block';
-        }
-        
-        function closeErrorModal() {
-            document.getElementById('errorModal').style.display = 'none';
-        }
-        
-        function showErrorModal(message) {
-            const errorModalBody = document.querySelector('#errorModal .modal-body p');
-            if (errorModalBody) {
-                errorModalBody.textContent = message || 'Voyage Code not found. Please correct or try again.';
-            }
-            document.getElementById('errorModal').style.display = 'block';
-        }
-        
-        // Close modal when clicking outside of it
-        window.onclick = function(event) {
-            const tripMapModal = document.getElementById('tripMapModal');
-            const errorModal = document.getElementById('errorModal');
-            if (event.target === tripMapModal) {
-                tripMapModal.style.display = 'none';
-            }
-            if (event.target === errorModal) {
-                errorModal.style.display = 'none';
-            }
-        }
-        
         function displayTripNotesTable(data) {
             const tableBody = document.getElementById('tripNotesTableBody');
             tableBody.innerHTML = '';
@@ -1710,91 +1435,741 @@
             document.getElementById('tripNotesTableContainer').style.display = 'block';
         }
 
-        async function fetchTripNotes() {
-            if (!serviceData) {
-                const modalBody = document.getElementById('tripNotesModalBody');
-                modalBody.innerHTML = '<p style="text-align: center; padding: 20px; color: #dc3545;">Please fetch voyage details first.</p>';
-                document.getElementById('tripNotesModal').style.display = 'block';
-                return;
-            }
-
+        function getStartDateFromServiceData(serviceData) {
             // Find StartDate in service data
-            // The serviceData might be an array of Service items, or a single object
+            // According to user: StartDate is always found on line 8 of the Service endpoint response
+            // Format: "StartDate": "2028-01-15"
             let startDate = null;
             
-            // Check if serviceData is an array (Service array)
+            console.log('Searching for StartDate in serviceData:', serviceData);
+            
+            // Method 1: Check if serviceData is an array (Service array)
             if (Array.isArray(serviceData) && serviceData.length > 0) {
                 // Get StartDate from first Service item
                 const firstService = serviceData[0];
-                startDate = firstService.StartDate || firstService.startDate || firstService.start_date;
-            } else if (serviceData.Service && Array.isArray(serviceData.Service) && serviceData.Service.length > 0) {
-                // Service is nested in an array
+                console.log('ServiceData is an array, checking first item:', firstService);
+                startDate = firstService.StartDate || firstService.startDate || firstService.start_date ||
+                           firstService.Start_Date || firstService.start_Date;
+            } 
+            // Method 2: Check if Service is nested in an array
+            else if (serviceData.Service && Array.isArray(serviceData.Service) && serviceData.Service.length > 0) {
                 const firstService = serviceData.Service[0];
-                startDate = firstService.StartDate || firstService.startDate || firstService.start_date;
-            } else {
-                // Try different possible locations for StartDate in single object
-                if (serviceData.StartDate) {
-                    startDate = serviceData.StartDate;
-                } else if (serviceData.startDate) {
-                    startDate = serviceData.startDate;
-                } else if (serviceData.start_date) {
-                    startDate = serviceData.start_date;
+                console.log('ServiceData.Service is an array, checking first item:', firstService);
+                startDate = firstService.StartDate || firstService.startDate || firstService.start_date ||
+                           firstService.Start_Date || firstService.start_Date;
+            } 
+            // Method 3: Direct StartDate field (most common - line 8 of response)
+            else if (serviceData.StartDate) {
+                startDate = serviceData.StartDate;
+                console.log('Found StartDate at serviceData.StartDate (line 8):', startDate);
+            } 
+            // Method 4: Try other common locations
+            else {
+                if (serviceData.startDate) {
+                startDate = serviceData.startDate;
+                    console.log('Found StartDate at serviceData.startDate:', startDate);
+            } else if (serviceData.start_date) {
+                startDate = serviceData.start_date;
+                    console.log('Found StartDate at serviceData.start_date:', startDate);
+                } else if (serviceData.Start_Date) {
+                    startDate = serviceData.Start_Date;
+                    console.log('Found StartDate at serviceData.Start_Date:', startDate);
                 } else if (serviceData.Service && serviceData.Service.StartDate) {
                     startDate = serviceData.Service.StartDate;
-                } else if (serviceData.Expedition && serviceData.Expedition.StartDate) {
-                    startDate = serviceData.Expedition.StartDate;
-                } else if (serviceData.expedition && serviceData.expedition.startDate) {
-                    startDate = serviceData.expedition.startDate;
+                    console.log('Found StartDate at serviceData.Service.StartDate:', startDate);
+            } else if (serviceData.Expedition && serviceData.Expedition.StartDate) {
+                startDate = serviceData.Expedition.StartDate;
+                    console.log('Found StartDate at serviceData.Expedition.StartDate:', startDate);
+            } else if (serviceData.expedition && serviceData.expedition.startDate) {
+                startDate = serviceData.expedition.startDate;
+                    console.log('Found StartDate at serviceData.expedition.startDate:', startDate);
+                } else {
+                    // Last resort: search recursively in nested objects
+                    console.log('StartDate not found in common locations, searching recursively...');
+                    startDate = findStartDateRecursive(serviceData);
                 }
             }
-
+            
+            // Log the response structure to help debug
             if (!startDate) {
-                console.error('StartDate not found in service data:', serviceData);
-                const modalBody = document.getElementById('tripNotesModalBody');
-                modalBody.innerHTML = '<p style="text-align: center; padding: 20px; color: #dc3545;">StartDate not found in service response. Cannot fetch trip notes.</p>';
-                document.getElementById('tripNotesModal').style.display = 'block';
-                tripNotesBtn.disabled = false;
-                return;
+                console.warn('StartDate not found in serviceData. Full structure:', JSON.stringify(serviceData, null, 2));
+                console.warn('Object keys:', Object.keys(serviceData));
+                // If it's an object, show the first 10 keys to see structure
+                if (typeof serviceData === 'object' && !Array.isArray(serviceData)) {
+                    const keys = Object.keys(serviceData);
+                    console.warn('Available keys in serviceData:', keys);
+                    // Check if StartDate might be at a specific position
+                    if (keys.length >= 8) {
+                        console.warn('8th key in object:', keys[7], '=', serviceData[keys[7]]);
+                    }
+                }
+            } else {
+                console.log('✅ Final StartDate found:', startDate);
             }
+            
+            return startDate;
+        }
+        
+        function findStartDateRecursive(obj, depth = 0, maxDepth = 5) {
+            // Prevent infinite recursion
+            if (depth > maxDepth || !obj || typeof obj !== 'object') {
+                return null;
+            }
+            
+            // Check common field names
+            const dateFields = ['StartDate', 'startDate', 'start_date', 'Start_Date', 'ExpeditionStartDate', 'expeditionStartDate'];
+            for (const field of dateFields) {
+                if (obj[field]) {
+                    console.log(`Found StartDate recursively at depth ${depth}, field: ${field}`, obj[field]);
+                    return obj[field];
+                }
+            }
+            
+            // Recursively search in nested objects and arrays
+            for (const key in obj) {
+                if (obj.hasOwnProperty(key) && typeof obj[key] === 'object' && obj[key] !== null) {
+                    // Skip if it's an array with many items (likely not what we want)
+                    if (Array.isArray(obj[key]) && obj[key].length > 10) {
+                        continue;
+                    }
+                    const found = findStartDateRecursive(obj[key], depth + 1, maxDepth);
+                    if (found) {
+                        return found;
+                    }
+                }
+            }
+            
+            return null;
+        }
 
+        function formatDateForAPI(startDate) {
             // Format date to YYYY-MM-DD
             let formattedDate = startDate;
-            
-            // If it's already in YYYY-MM-DD format, use it directly
-            if (typeof startDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(startDate.trim())) {
-                formattedDate = startDate.trim();
-            } else if (startDate instanceof Date) {
+            if (startDate instanceof Date) {
                 formattedDate = startDate.toISOString().split('T')[0];
             } else if (typeof startDate === 'string') {
                 // Try to parse and format
                 const date = new Date(startDate);
                 if (!isNaN(date.getTime())) {
                     formattedDate = date.toISOString().split('T')[0];
-                } else {
-                    // If parsing fails, try to extract YYYY-MM-DD pattern
-                    const dateMatch = startDate.match(/(\d{4}-\d{2}-\d{2})/);
-                    if (dateMatch) {
-                        formattedDate = dateMatch[1];
-                    }
                 }
             }
-            
-            console.log('Using StartDate for expeditionDate:', formattedDate);
+            return formattedDate;
+        }
 
-            const tripNotesBtn = document.getElementById('tripNotesBtn');
+        async function fetchActivityComponents() {
+            if (!serviceData) {
+                showError('Please fetch voyage details first', 'activityComponents');
+                return;
+            }
+
+            // Get StartDate from service data
+            const startDate = getStartDateFromServiceData(serviceData);
+
+            if (!startDate) {
+                showError('StartDate not found in service response. Cannot fetch activity components.', 'activityComponents');
+                return;
+            }
+
+            // Format date to YYYY-MM-DD
+            const formattedDate = formatDateForAPI(startDate);
+            console.log('Using expeditionDate for Activity Components:', formattedDate, '(from StartDate:', startDate, ')');
+
+            const activityComponentsBtn = document.getElementById('activityComponentsBtn');
             const packagesEndpoint = 'https://aurora-website-app-26ta7u.5sc6y6-4.usa-e2.cloudhub.io/api/packages';
             
-            tripNotesBtn.disabled = true;
+            activityComponentsBtn.disabled = true;
+            showStatus('🔄 Fetching activity components...', 'loading', 'activityComponents');
+            clearError('activityComponents');
+            document.getElementById('activityComponentsResponseContainer').style.display = 'none';
+            document.getElementById('activityComponentsTableContainer').style.display = 'none';
+            document.getElementById('activityComponentsSection').style.display = 'block';
 
             try {
                 // Build packages URL with expeditionDate
                 const packagesUrl = new URL(packagesEndpoint);
-                packagesUrl.searchParams.set('first', '20');
+                packagesUrl.searchParams.set('first', '30'); // Get results to find activities
                 packagesUrl.searchParams.set('offset', '0');
                 packagesUrl.searchParams.set('expeditionDate', formattedDate);
                 const finalPackagesUrl = getProxyUrl(packagesUrl.toString(), 'GET');
                 
-                // Fetch trip notes
+                console.log('📡 Step 4: Fetching packages from URL:', finalPackagesUrl);
+                console.log('📡 Original URL (before proxy):', packagesUrl.toString());
+                console.log('📡 Query params:', {
+                    first: '30',
+                    offset: '0',
+                    expeditionDate: formattedDate
+                });
+                
+                // Fetch packages data
+                const response = await fetch(finalPackagesUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                console.log('📡 Response status:', response.status, response.statusText);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('❌ API Error Response:', errorText);
+                    throw new Error(`Activity components request failed: ${response.status} ${response.statusText}\n${errorText}`);
+                }
+
+                const data = await response.json();
+                console.log('📦 Step 4 Complete: Received packages data');
+                console.log('📦 Response structure:', {
+                    isArray: Array.isArray(data),
+                    hasPackage: !!(data.Package),
+                    packageIsArray: Array.isArray(data.Package),
+                    packageCount: Array.isArray(data.Package) ? data.Package.length : 'N/A',
+                    topLevelKeys: Object.keys(data)
+                });
+                
+                // Get voyage code and currency for searching/filtering
+                const voyageCode = document.getElementById('voyageCode').value.toUpperCase().trim();
+                const selectedCurrency = document.getElementById('currency').value;
+                console.log('🔍 Step 5: Searching for voyage code:', voyageCode);
+                console.log('💰 Filtering by currency:', selectedCurrency);
+                
+                // Display success and table
+                showStatus(`✅ Success! Status: ${response.status}`, 'success', 'activityComponents');
+                displayActivityComponentsTable(data, voyageCode, selectedCurrency);
+
+            } catch (error) {
+                showStatus('❌ Error occurred', 'error', 'activityComponents');
+                
+                let errorMessage = error.message;
+                if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
+                    errorMessage = `CORS Error: The browser blocked the request due to Cross-Origin Resource Sharing (CORS) restrictions.\n\n` +
+                        `This happens when the API server doesn't allow requests from browser origins.\n\n` +
+                        `Possible solutions:\n` +
+                        `1. Use a CORS proxy (check the box above)\n` +
+                        `2. Enable CORS on the API server\n` +
+                        `3. Use a backend server to make the API calls\n\n` +
+                        `Original error: ${error.message}`;
+                }
+                
+                showError(`Error: ${errorMessage}`, 'activityComponents');
+                console.error('Full error details:', error);
+            } finally {
+                activityComponentsBtn.disabled = false;
+            }
+        }
+
+        function displayActivityComponentsTable(data, voyageCode, selectedCurrency) {
+            const tableBody = document.getElementById('activityComponentsTableBody');
+            tableBody.innerHTML = '';
+            
+            console.log('Packages data structure for activities:', data);
+            console.log('Searching for voyage code:', voyageCode);
+            console.log('Filtering by currency:', selectedCurrency);
+            
+            // Step 1: Find the package that matches the voyage code
+            let matchingPackage = null;
+            
+            // Helper function to find package by voyage code
+            function findPackageByVoyageCode(obj, targetVoyageCode) {
+                if (!obj || typeof obj !== 'object') {
+                    console.log('⚠️ findPackageByVoyageCode: obj is not an object');
+                    return null;
+                }
+                
+                // Priority 1: Check for Package array (most common structure)
+                if (obj.Package && Array.isArray(obj.Package)) {
+                    console.log(`🔍 Checking Package array with ${obj.Package.length} items`);
+                    for (let i = 0; i < obj.Package.length; i++) {
+                        const pkg = obj.Package[i];
+                        if (!pkg || typeof pkg !== 'object') continue;
+                        
+                        // Check various field names for voyage code
+                        const pkgVoyageCode = pkg.Name || 
+                                            pkg.name || 
+                                            pkg.VoyageCode || 
+                                            pkg.voyageCode ||
+                                            pkg.Voyage_Code ||
+                                            pkg.voyage_code ||
+                                            pkg.Code ||
+                                            pkg.code ||
+                                            pkg.PackageName ||
+                                            pkg.packageName || '';
+                        
+                        console.log(`  Package ${i + 1}: Checking voyage code fields:`, {
+                            Name: pkg.Name,
+                            name: pkg.name,
+                            VoyageCode: pkg.VoyageCode,
+                            voyageCode: pkg.voyageCode,
+                            found: pkgVoyageCode,
+                            matches: pkgVoyageCode && pkgVoyageCode.toString().toUpperCase() === targetVoyageCode.toUpperCase()
+                        });
+                        
+                        if (pkgVoyageCode && pkgVoyageCode.toString().toUpperCase() === targetVoyageCode.toUpperCase()) {
+                            console.log('✅ Found matching package for voyage code:', targetVoyageCode);
+                            console.log('✅ Matching package structure:', {
+                                Name: pkg.Name,
+                                VoyageCode: pkg.VoyageCode,
+                                hasComponents: !!(pkg.Components),
+                                componentsIsArray: Array.isArray(pkg.Components),
+                                componentsCount: Array.isArray(pkg.Components) ? pkg.Components.length : 'N/A'
+                            });
+                            return pkg;
+                        }
+                    }
+                    console.log('❌ No matching package found in Package array');
+                    return null;
+                }
+                
+                // Priority 2: Check if root is an array of packages
+                if (Array.isArray(obj)) {
+                    for (const item of obj) {
+                        if (!item || typeof item !== 'object') continue;
+                        
+                        const pkgVoyageCode = item.Name || 
+                                            item.name || 
+                                            item.VoyageCode || 
+                                            item.voyageCode ||
+                                            item.Voyage_Code ||
+                                            item.voyage_code ||
+                                            item.Code ||
+                                            item.code ||
+                                            item.PackageName ||
+                                            item.packageName || '';
+                        
+                        if (pkgVoyageCode && pkgVoyageCode.toString().toUpperCase() === targetVoyageCode.toUpperCase()) {
+                            console.log('✅ Found matching package for voyage code:', targetVoyageCode, item);
+                            return item;
+                        }
+                    }
+                    return null;
+                }
+                
+                // Priority 3: Check if single package object matches
+                const pkgVoyageCode = obj.Name || 
+                                    obj.name || 
+                                    obj.VoyageCode || 
+                                    obj.voyageCode ||
+                                    obj.Voyage_Code ||
+                                    obj.voyage_code ||
+                                    obj.Code ||
+                                    obj.code ||
+                                    obj.PackageName ||
+                                    obj.packageName || '';
+                
+                if (pkgVoyageCode && pkgVoyageCode.toString().toUpperCase() === targetVoyageCode.toUpperCase()) {
+                    console.log('✅ Found matching package for voyage code:', targetVoyageCode, obj);
+                    return obj;
+                }
+                
+                // Priority 4: Recursively search nested objects
+                for (const key in obj) {
+                    if (obj.hasOwnProperty(key) && typeof obj[key] === 'object' && obj[key] !== null) {
+                        const found = findPackageByVoyageCode(obj[key], targetVoyageCode);
+                        if (found) {
+                            return found;
+                        }
+                    }
+                }
+                
+                return null;
+            }
+            
+            // Search for the matching package
+            console.log('🔍 Step 5: Searching for package matching voyage code:', voyageCode);
+            matchingPackage = findPackageByVoyageCode(data, voyageCode);
+            
+            if (!matchingPackage) {
+                console.warn('❌ Step 5 Failed: No matching package found for voyage code:', voyageCode);
+                
+                // Log available packages for debugging
+                if (data.Package && Array.isArray(data.Package)) {
+                    console.warn('📦 Available packages in response:', data.Package.map((pkg, idx) => {
+                        const pkgCode = pkg.Name || pkg.name || pkg.VoyageCode || pkg.voyageCode || pkg.Code || pkg.code || 'Unknown';
+                        return `Package ${idx + 1}: ${pkgCode}`;
+                    }));
+                    console.warn('📦 Full package names:', data.Package.map(pkg => ({
+                        Name: pkg.Name,
+                        name: pkg.name,
+                        VoyageCode: pkg.VoyageCode,
+                        voyageCode: pkg.voyageCode,
+                        Code: pkg.Code,
+                        code: pkg.code
+                    })));
+                } else {
+                    console.warn('📦 Response structure:', {
+                        type: typeof data,
+                        isArray: Array.isArray(data),
+                        keys: Object.keys(data),
+                        sample: JSON.stringify(data).substring(0, 500)
+                    });
+                }
+                
+                tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 20px;">No package found for voyage code: ${voyageCode}. Check console for available packages.</td></tr>`;
+                document.getElementById('activityComponentsTableContainer').style.display = 'block';
+                return;
+            }
+            
+            console.log('✅ Step 5 Complete: Found matching package');
+            
+            console.log('✅ Found matching package, now searching for Activity Components:', matchingPackage);
+            
+            // Step 2: Find Activity Components in the matching package
+            // Structure: Package -> Components -> Activity -> Component Options
+            let activityComponents = [];
+            
+            // Store selectedCurrency for use in filtering
+            const filterCurrency = selectedCurrency ? selectedCurrency.toUpperCase() : null;
+            
+            // Helper function to extract Activity Components from a package
+            function extractActivityComponentsFromPackage(pkg) {
+                if (!pkg || typeof pkg !== 'object') {
+                    console.log('⚠️ extractActivityComponentsFromPackage: pkg is not an object');
+                    return;
+                }
+                
+                console.log('🔍 Step 6: Extracting Activity Components from package');
+                console.log('📦 Package keys:', Object.keys(pkg));
+                
+                // Find Components array - based on actual API structure, it's "Components"
+                const components = pkg.Components || 
+                                 pkg.components || 
+                                 pkg['packagekey'] ||
+                                 pkg.packagekey ||
+                                 pkg['PackageKey'] ||
+                                 pkg.PackageKey ||
+                                 pkg.Component || 
+                                 pkg.component;
+                
+                console.log('📦 Components found:', {
+                    hasComponents: !!components,
+                    componentsType: typeof components,
+                    isArray: Array.isArray(components),
+                    count: Array.isArray(components) ? components.length : 'N/A',
+                    checkedFields: {
+                        Components: !!pkg.Components,
+                        components: !!pkg.components,
+                        packagekey: !!pkg.packagekey,
+                        PackageKey: !!pkg.PackageKey
+                    }
+                });
+                
+                if (components && Array.isArray(components)) {
+                    console.log(`📦 Processing ${components.length} components`);
+                    processComponents(components);
+                } else if (components && typeof components === 'object') {
+                    console.log('📦 Components is an object, searching for arrays within it');
+                    // If Components is a single object, try to find arrays within it
+                    for (const key in components) {
+                        if (Array.isArray(components[key])) {
+                            console.log(`📦 Found array in components.${key} with ${components[key].length} items`);
+                            processComponents(components[key]);
+                        }
+                    }
+                } else {
+                    console.warn('⚠️ No Components array found in package. Available keys:', Object.keys(pkg));
+                    // Try to find any array that might contain components
+                    for (const key in pkg) {
+                        if (Array.isArray(pkg[key]) && pkg[key].length > 0) {
+                            const firstItem = pkg[key][0];
+                            if (firstItem && typeof firstItem === 'object' && (firstItem.RecordType || firstItem.recordType)) {
+                                console.log(`📦 Found potential components array in package.${key}`);
+                                processComponents(pkg[key]);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            function processComponents(components) {
+                console.log(`🔍 Processing ${components.length} components`);
+                components.forEach((component, index) => {
+                    if (!component || typeof component !== 'object') return;
+                    
+                    // Check if this component is an Activity using RecordType
+                    const recordType = component.RecordType || 
+                                      component.recordType || 
+                                      component.Record_Type ||
+                                      component.record_type;
+                    
+                    console.log(`  Component ${index + 1}:`, {
+                        RecordType: recordType,
+                        isActivity: recordType && recordType.toString().toLowerCase() === 'activity',
+                        hasComponentOptions: !!(component.ComponentOptions || component.componentOptions),
+                        componentOptionsIsArray: Array.isArray(component.ComponentOptions || component.componentOptions),
+                        componentOptionsCount: Array.isArray(component.ComponentOptions || component.componentOptions) ? 
+                                              (component.ComponentOptions || component.componentOptions).length : 'N/A',
+                        allKeys: Object.keys(component)
+                    });
+                    
+                    if (recordType && recordType.toString().toLowerCase() === 'activity') {
+                        console.log(`  ✅ Found Activity component ${index + 1} (RecordType: ${recordType})`);
+                        // Found Activity component, now look for Component Options
+                        const componentOptions = component.ComponentOptions || 
+                                                 component.componentOptions || 
+                                                 component['Component Options'] ||
+                                                 component['component options'] ||
+                                                 component.Options || 
+                                                 component.options;
+                        
+                        console.log(`  📋 Component Options found:`, {
+                            hasOptions: !!componentOptions,
+                            isArray: Array.isArray(componentOptions),
+                            count: Array.isArray(componentOptions) ? componentOptions.length : 'N/A'
+                        });
+                        
+                        if (componentOptions && Array.isArray(componentOptions)) {
+                            console.log(`  📋 Processing ${componentOptions.length} component options`);
+                            componentOptions.forEach((option, optIndex) => {
+                                if (!option || typeof option !== 'object') return;
+                                
+                                // Get the name/identifier using OptionName
+                                const optionName = option.OptionName || 
+                                                  option.optionName || 
+                                                  option.Option_Name ||
+                                                  option.option_name ||
+                                                  option.Name || 
+                                                  option.name || 
+                                                  option.ComponentOptionName || 
+                                                  option.componentOptionName ||
+                                                  option.Title || 
+                                                  option.title ||
+                                                  option.Label ||
+                                                  option.label || '';
+                                
+                                // Filter out items with 'Waitlist' in the name (case-insensitive)
+                                const isWaitlist = optionName && optionName.toString().toLowerCase().includes('waitlist');
+                                
+                                // Find PricingInventory for availability, price, and currency
+                                // Also check PriceCategory as it might contain pricing data
+                                const pricingInventory = option.PricingInventory || 
+                                                        option.pricingInventory ||
+                                                        option.Pricing_Inventory ||
+                                                        option.pricing_inventory;
+                                
+                                const priceCategory = option.PriceCategory || 
+                                                     option.priceCategory ||
+                                                     option.Price_Category ||
+                                                     option.price_category;
+                                
+                                // Check if PricingInventory is inside PriceCategory
+                                const pricingData = pricingInventory || 
+                                                   (priceCategory && priceCategory.PricingInventory) ||
+                                                   (priceCategory && priceCategory.pricingInventory) ||
+                                                   priceCategory;
+                                
+                                console.log(`    Option ${optIndex + 1}:`, {
+                                    OptionName: optionName,
+                                    isWaitlist: isWaitlist,
+                                    hasPricingInventory: !!pricingInventory,
+                                    hasPriceCategory: !!priceCategory,
+                                    hasPricingData: !!pricingData,
+                                    optionKeys: Object.keys(option),
+                                    willInclude: !isWaitlist
+                                });
+                                
+                                if (optionName && !isWaitlist) {
+                                    // PricingInventory/PricingData can be an object or array
+                                    // Need to search through PricingInventory array to find matching currency
+                                    let unitsAvailable = null;
+                                    let grossPrice = null;
+                                    let currency = '';
+                                    let matchingPricing = null;
+                                    
+                                    if (pricingData) {
+                                        if (Array.isArray(pricingData) && pricingData.length > 0) {
+                                            // Search through PricingInventory array to find item matching selected currency
+                                            if (filterCurrency && filterCurrency !== 'ALL') {
+                                                // Find pricing item with matching currency
+                                                for (const pricing of pricingData) {
+                                                    const pricingCurrency = (pricing.Currency || 
+                                                                           pricing.currency || 
+                                                                           pricing.CurrencyIsoCode || 
+                                                                           pricing.currencyIsoCode || 
+                                                                           pricing.Currency_ISO_Code || 
+                                                                           pricing.currency_iso_code ||
+                                                                           pricing.CurrencyCode ||
+                                                                           pricing.currencyCode || '').toString().toUpperCase();
+                                                    
+                                                    if (pricingCurrency === filterCurrency) {
+                                                        matchingPricing = pricing;
+                                                        console.log(`    💰 Found matching currency ${filterCurrency} in PricingInventory array`);
+                                                        break;
+                                                    }
+                                                }
+                                                
+                                                if (!matchingPricing) {
+                                                    console.log(`    ⏭️ No matching currency ${filterCurrency} found in PricingInventory array for: ${optionName}`);
+                                                    return; // Skip this option if no matching currency
+                                                }
+                                            } else {
+                                                // If "ALL" or no filter, use first item
+                                                matchingPricing = pricingData[0];
+                                            }
+                                            
+                                            // Extract data from matching pricing item
+                                            if (matchingPricing) {
+                                                // Look for UnitAvailable (singular) as shown in the API response
+                                                unitsAvailable = matchingPricing.UnitAvailable !== undefined ? matchingPricing.UnitAvailable : 
+                                                               (matchingPricing.unitAvailable !== undefined ? matchingPricing.unitAvailable :
+                                                               (matchingPricing.Unit_Available !== undefined ? matchingPricing.Unit_Available :
+                                                               (matchingPricing.unit_available !== undefined ? matchingPricing.unit_available :
+                                                               (matchingPricing.UnitsAvailable !== undefined ? matchingPricing.UnitsAvailable : 
+                                                               (matchingPricing.unitsAvailable !== undefined ? matchingPricing.unitsAvailable :
+                                                               (matchingPricing.Units_Available !== undefined ? matchingPricing.Units_Available :
+                                                               (matchingPricing.units_available !== undefined ? matchingPricing.units_available : null)))))));
+                                                
+                                                grossPrice = matchingPricing.GrossPrice !== undefined ? matchingPricing.GrossPrice :
+                                                            (matchingPricing.grossPrice !== undefined ? matchingPricing.grossPrice :
+                                                            (matchingPricing.Gross_Price !== undefined ? matchingPricing.Gross_Price :
+                                                            (matchingPricing.gross_price !== undefined ? matchingPricing.gross_price : null)));
+                                                
+                                                currency = matchingPricing.Currency || 
+                                                          matchingPricing.currency || 
+                                                          matchingPricing.CurrencyIsoCode || 
+                                                          matchingPricing.currencyIsoCode || 
+                                                          matchingPricing.Currency_ISO_Code || 
+                                                          matchingPricing.currency_iso_code ||
+                                                          matchingPricing.CurrencyCode ||
+                                                          matchingPricing.currencyCode || '';
+                                            }
+                                        } else if (typeof pricingData === 'object') {
+                                            // If object, check if currency matches
+                                            const pricingCurrency = (pricingData.Currency || 
+                                                                    pricingData.currency || 
+                                                                    pricingData.CurrencyIsoCode || 
+                                                                    pricingData.currencyIsoCode || 
+                                                                    pricingData.Currency_ISO_Code || 
+                                                                    pricingData.currency_iso_code ||
+                                                                    pricingData.CurrencyCode ||
+                                                                    pricingData.currencyCode || '').toString().toUpperCase();
+                                            
+                                            if (filterCurrency && filterCurrency !== 'ALL' && pricingCurrency !== filterCurrency) {
+                                                console.log(`    ⏭️ Currency mismatch (${pricingCurrency} vs ${filterCurrency}) for: ${optionName}`);
+                                                return; // Skip this option if currency doesn't match
+                                            }
+                                            
+                                            matchingPricing = pricingData;
+                                            
+                                            // Look for UnitAvailable (singular) as shown in the API response
+                                            unitsAvailable = pricingData.UnitAvailable !== undefined ? pricingData.UnitAvailable : 
+                                                           (pricingData.unitAvailable !== undefined ? pricingData.unitAvailable :
+                                                           (pricingData.Unit_Available !== undefined ? pricingData.Unit_Available :
+                                                           (pricingData.unit_available !== undefined ? pricingData.unit_available :
+                                                           (pricingData.UnitsAvailable !== undefined ? pricingData.UnitsAvailable : 
+                                                           (pricingData.unitsAvailable !== undefined ? pricingData.unitsAvailable :
+                                                           (pricingData.Units_Available !== undefined ? pricingData.Units_Available :
+                                                           (pricingData.units_available !== undefined ? pricingData.units_available : null)))))));
+                                            
+                                            grossPrice = pricingData.GrossPrice !== undefined ? pricingData.GrossPrice :
+                                                        (pricingData.grossPrice !== undefined ? pricingData.grossPrice :
+                                                        (pricingData.Gross_Price !== undefined ? pricingData.Gross_Price :
+                                                        (pricingData.gross_price !== undefined ? pricingData.gross_price : null)));
+                                            
+                                            currency = pricingData.Currency || 
+                                                      pricingData.currency || 
+                                                      pricingData.CurrencyIsoCode || 
+                                                      pricingData.currencyIsoCode || 
+                                                      pricingData.Currency_ISO_Code || 
+                                                      pricingData.currency_iso_code ||
+                                                      pricingData.CurrencyCode ||
+                                                      pricingData.currencyCode || '';
+                                        }
+                                    }
+                                    
+                                    // Only add if we found matching pricing data
+                                    if (matchingPricing || (!filterCurrency || filterCurrency === 'ALL')) {
+                                        const activityData = {
+                                            name: optionName.toString(),
+                                            unitsAvailable: unitsAvailable,
+                                            grossPrice: grossPrice,
+                                            currency: currency.toString()
+                                        };
+                                        
+                                        console.log(`    ✅ Added activity (currency: ${currency}):`, activityData);
+                                        activityComponents.push(activityData);
+                                    }
+                                } else if (isWaitlist) {
+                                    console.log(`    ⏭️ Skipped waitlist item: ${optionName}`);
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+            
+            // Extract Activity Components from the matching package
+            extractActivityComponentsFromPackage(matchingPackage);
+            
+            console.log('📊 Step 6 Complete: Found activity components for voyage', voyageCode);
+            console.log('📊 Total activities found:', activityComponents.length);
+            console.log('📊 Activity components:', activityComponents);
+
+            if (activityComponents.length === 0) {
+                // Show modal popup instead of error message
+                showActivityComponentsModal();
+                return;
+            }
+
+            // Display activity components in table
+            activityComponents.forEach(activity => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${activity.name || '-'}</td>
+                    <td>${activity.currency || '-'}</td>
+                    <td>${activity.grossPrice !== null && activity.grossPrice !== undefined ? activity.grossPrice : '-'}</td>
+                    <td>${activity.unitsAvailable !== null && activity.unitsAvailable !== undefined ? activity.unitsAvailable : '-'}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            document.getElementById('activityComponentsTableContainer').style.display = 'block';
+        }
+
+        async function fetchVoyageMap() {
+            if (!serviceData) {
+                showVoyageMapErrorModal('Please fetch voyage details first (service call required to get StartDate)');
+                return;
+            }
+
+            console.log('🗺️ Step 1: Getting StartDate from service data (from service endpoint call)');
+            
+            // Get StartDate from service data (from service endpoint)
+            const startDate = getStartDateFromServiceData(serviceData);
+
+            if (!startDate) {
+                showVoyageMapErrorModal('StartDate not found in service response. Cannot fetch voyage map.');
+                return;
+            }
+
+            // Format date to YYYY-MM-DD
+            const formattedDate = formatDateForAPI(startDate);
+            console.log('🗺️ Step 2: Using expeditionDate for packages call:', formattedDate, '(from StartDate:', startDate, ')');
+
+            const voyageMapBtn = document.getElementById('voyageMapBtn');
+            const packagesEndpoint = 'https://aurora-website-app-26ta7u.5sc6y6-4.usa-e2.cloudhub.io/api/packages';
+            
+            voyageMapBtn.disabled = true;
+            
+            // Show loading in modal
+            const mapContainer = document.getElementById('voyageMapContainer');
+            mapContainer.innerHTML = '<p style="color: #666;">Loading map...</p>';
+            showVoyageMapModal();
+
+            try {
+                // Step 3: Build packages URL with expeditionDate (using packages endpoint, not service endpoint)
+                const packagesUrl = new URL(packagesEndpoint);
+                packagesUrl.searchParams.set('first', '30');
+                packagesUrl.searchParams.set('offset', '0');
+                packagesUrl.searchParams.set('expeditionDate', formattedDate);
+                const finalPackagesUrl = getProxyUrl(packagesUrl.toString(), 'GET');
+                
+                console.log('🗺️ Step 3: Fetching packages from packages endpoint (not service endpoint):', finalPackagesUrl);
+                console.log('🗺️ Packages URL:', packagesUrl.toString());
+                
+                // Fetch packages
                 const response = await fetch(finalPackagesUrl, {
                     method: 'GET',
                     headers: {
@@ -1806,13 +2181,179 @@
 
                 if (!response.ok) {
                     const errorText = await response.text();
-                    throw new Error(`Trip notes request failed: ${response.status} ${response.statusText}\n${errorText}`);
+                    throw new Error(`Voyage map request failed: ${response.status} ${response.statusText}\n${errorText}`);
                 }
 
                 const data = await response.json();
+                console.log('🗺️ Step 4: Received packages data from packages endpoint');
                 
-                // Open modal with trip notes
-                displayTripNotesModal(data);
+                // Step 5: Get voyage code and find matching package (using exact same logic as activity components)
+                const voyageCode = document.getElementById('voyageCode').value.toUpperCase().trim();
+                console.log('🗺️ Step 5: Searching for package matching voyage code:', voyageCode);
+                
+                // Use the exact same findPackageByVoyageCode function as activity components
+                let matchingPackage = null;
+                
+                // Helper function to find package by voyage code (EXACT COPY from activity components)
+                function findPackageByVoyageCodeForMap(obj, targetVoyageCode) {
+                    if (!obj || typeof obj !== 'object') {
+                        console.log('⚠️ findPackageByVoyageCodeForMap: obj is not an object');
+                        return null;
+                    }
+                    
+                    // Priority 1: Check for Package array (most common structure)
+                    if (obj.Package && Array.isArray(obj.Package)) {
+                        console.log(`🔍 Checking Package array with ${obj.Package.length} items`);
+                        for (let i = 0; i < obj.Package.length; i++) {
+                            const pkg = obj.Package[i];
+                            if (!pkg || typeof pkg !== 'object') continue;
+                            
+                            // Check various field names for voyage code
+                            const pkgVoyageCode = pkg.Name || 
+                                                pkg.name || 
+                                                pkg.VoyageCode || 
+                                                pkg.voyageCode ||
+                                                pkg.Voyage_Code ||
+                                                pkg.voyage_code ||
+                                                pkg.Code ||
+                                                pkg.code ||
+                                                pkg.PackageName ||
+                                                pkg.packageName || '';
+                            
+                            console.log(`  Package ${i + 1}: Checking voyage code fields:`, {
+                                Name: pkg.Name,
+                                name: pkg.name,
+                                VoyageCode: pkg.VoyageCode,
+                                voyageCode: pkg.voyageCode,
+                                found: pkgVoyageCode,
+                                matches: pkgVoyageCode && pkgVoyageCode.toString().toUpperCase() === targetVoyageCode.toUpperCase()
+                            });
+                            
+                            if (pkgVoyageCode && pkgVoyageCode.toString().toUpperCase() === targetVoyageCode.toUpperCase()) {
+                                console.log('✅ Found matching package for voyage code:', targetVoyageCode);
+                                console.log('✅ Matching package structure:', {
+                                    Name: pkg.Name,
+                                    VoyageCode: pkg.VoyageCode,
+                                    hasMap_URL: !!(pkg.Map_URL),
+                                    Map_URL: pkg.Map_URL
+                                });
+                                return pkg;
+                            }
+                        }
+                        console.log('❌ No matching package found in Package array');
+                        return null;
+                    }
+                    
+                    // Priority 2: Check if root is an array of packages
+                    if (Array.isArray(obj)) {
+                        for (const item of obj) {
+                            if (!item || typeof item !== 'object') continue;
+                            
+                            const pkgVoyageCode = item.Name || 
+                                                item.name || 
+                                                item.VoyageCode || 
+                                                item.voyageCode ||
+                                                item.Voyage_Code ||
+                                                item.voyage_code ||
+                                                item.Code ||
+                                                item.code ||
+                                                item.PackageName ||
+                                                item.packageName || '';
+                            
+                            if (pkgVoyageCode && pkgVoyageCode.toString().toUpperCase() === targetVoyageCode.toUpperCase()) {
+                                console.log('✅ Found matching package for voyage code:', targetVoyageCode, item);
+                                return item;
+                            }
+                        }
+                        return null;
+                    }
+                    
+                    // Priority 3: Check if single package object matches
+                    const pkgVoyageCode = obj.Name || 
+                                        obj.name || 
+                                        obj.VoyageCode || 
+                                        obj.voyageCode ||
+                                        obj.Voyage_Code ||
+                                        obj.voyage_code ||
+                                        obj.Code ||
+                                        obj.code ||
+                                        obj.PackageName ||
+                                        obj.packageName || '';
+                    
+                    if (pkgVoyageCode && pkgVoyageCode.toString().toUpperCase() === targetVoyageCode.toUpperCase()) {
+                        console.log('✅ Found matching package for voyage code:', targetVoyageCode, obj);
+                        return obj;
+                    }
+                    
+                    // Priority 4: Recursively search nested objects
+                    for (const key in obj) {
+                        if (obj.hasOwnProperty(key) && typeof obj[key] === 'object' && obj[key] !== null) {
+                            const found = findPackageByVoyageCodeForMap(obj[key], targetVoyageCode);
+                            if (found) {
+                                return found;
+                            }
+                        }
+                    }
+                    
+                    return null;
+                }
+                
+                // Search for the matching package
+                matchingPackage = findPackageByVoyageCodeForMap(data, voyageCode);
+                
+                if (!matchingPackage) {
+                    console.warn('❌ Step 5 Failed: No matching package found for voyage code:', voyageCode);
+                    
+                    // Log available packages for debugging
+                    if (data.Package && Array.isArray(data.Package)) {
+                        console.warn('📦 Available packages in response:', data.Package.map((pkg, idx) => {
+                            const pkgCode = pkg.Name || pkg.name || pkg.VoyageCode || pkg.voyageCode || pkg.Code || pkg.code || 'Unknown';
+                            return `Package ${idx + 1}: ${pkgCode}`;
+                        }));
+                        console.warn('📦 Full package names:', data.Package.map(pkg => ({
+                            Name: pkg.Name,
+                            name: pkg.name,
+                            VoyageCode: pkg.VoyageCode,
+                            voyageCode: pkg.voyageCode,
+                            Code: pkg.Code,
+                            code: pkg.code
+                        })));
+                    } else {
+                        console.warn('📦 Response structure:', {
+                            type: typeof data,
+                            isArray: Array.isArray(data),
+                            keys: Object.keys(data),
+                            sample: JSON.stringify(data).substring(0, 500)
+                        });
+                    }
+                    
+                    showVoyageMapErrorModal(`No package found for voyage code: ${voyageCode}`);
+                    return;
+                }
+                
+                console.log('✅ Step 5 Complete: Found matching package');
+                console.log('✅ Found matching package, now searching for Map_URL:', matchingPackage);
+                console.log('📦 Matching package keys:', Object.keys(matchingPackage));
+                
+                // Step 6: Find Map_URL in the matching package (from packages endpoint response)
+                const mapUrl = matchingPackage.Map_URL || 
+                              matchingPackage.map_url ||
+                              matchingPackage.MapUrl ||
+                              matchingPackage.mapUrl ||
+                              matchingPackage.Map_Url ||
+                              matchingPackage.map_Url ||
+                              matchingPackage['Map_URL'] ||
+                              matchingPackage['map_url'] || null;
+                
+                console.log('🗺️ Step 6: Map_URL found in matching package:', mapUrl);
+                
+                if (!mapUrl) {
+                    showVoyageMapErrorModal('Map URL not found for this voyage.');
+                    return;
+                }
+                
+                // Display map in modal
+                displayVoyageMap(mapUrl);
 
             } catch (error) {
                 let errorMessage = error.message;
@@ -1826,14 +2367,51 @@
                         `Original error: ${error.message}`;
                 }
                 
-                // Show error in modal
-                const modalBody = document.getElementById('tripNotesModalBody');
-                modalBody.innerHTML = `<p style="text-align: center; padding: 20px; color: #dc3545;">Error: ${errorMessage}</p>`;
-                document.getElementById('tripNotesModal').style.display = 'block';
+                showVoyageMapErrorModal(`Error: ${errorMessage}`);
                 console.error('Full error details:', error);
             } finally {
-                tripNotesBtn.disabled = false;
+                voyageMapBtn.disabled = false;
             }
+        }
+        
+        
+        function displayVoyageMap(mapUrl) {
+            const mapContainer = document.getElementById('voyageMapContainer');
+            
+            if (!mapUrl) {
+                mapContainer.innerHTML = '<p style="color: #d32f2f;">Map URL not available</p>';
+                return;
+            }
+            
+            // Display map as an image
+            mapContainer.innerHTML = `
+                <img src="${mapUrl}" 
+                     alt="Voyage Map" 
+                     style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"
+                     onerror="this.parentElement.innerHTML='<p style=\'color: #d32f2f;\'>Failed to load map image. URL: ${mapUrl}</p>'">
+            `;
+            
+            console.log('🗺️ Map displayed:', mapUrl);
+        }
+        
+        function showVoyageMapModal() {
+            const modal = document.getElementById('voyageMapModal');
+            if (modal) {
+                modal.style.display = 'block';
+            }
+        }
+        
+        function closeVoyageMapModal() {
+            const modal = document.getElementById('voyageMapModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+        
+        function showVoyageMapErrorModal(message) {
+            const mapContainer = document.getElementById('voyageMapContainer');
+            mapContainer.innerHTML = `<p style="color: #d32f2f; padding: 20px;">${message}</p>`;
+            showVoyageMapModal();
         }
 
         // Initialize hardcoded API configuration values
@@ -1894,33 +2472,34 @@
             if (value.length > 7) value = value.substring(0, 7);
             e.target.value = value;
         });
+
+        // Modal functions for Activity Components
+        function showActivityComponentsModal() {
+            const modal = document.getElementById('activityComponentsModal');
+            if (modal) {
+                modal.style.display = 'block';
+            }
+        }
+
+        function closeActivityComponentsModal() {
+            const modal = document.getElementById('activityComponentsModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Close modals when clicking outside of them
+        window.onclick = function(event) {
+            const activityModal = document.getElementById('activityComponentsModal');
+            if (event.target === activityModal && activityModal) {
+                closeActivityComponentsModal();
+            }
+            
+            const mapModal = document.getElementById('voyageMapModal');
+            if (event.target === mapModal && mapModal) {
+                closeVoyageMapModal();
+            }
+        }
     </script>
-
-    <!-- Trip Map Modal -->
-    <div id="tripMapModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>🗺️ Trip Map</h2>
-                <button class="close-modal" onclick="closeTripMapModal()">&times;</button>
-            </div>
-            <div class="modal-body" id="tripMapModalBody">
-                <!-- Content will be populated by JavaScript -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Error Modal -->
-    <div id="errorModal" class="modal">
-        <div class="modal-content" style="max-width: 500px;">
-            <div class="modal-header" style="background: #dc3545;">
-                <h2>⚠️ Error</h2>
-                <button class="close-modal" onclick="closeErrorModal()">&times;</button>
-            </div>
-            <div class="modal-body" style="text-align: center; padding: 40px 30px;">
-                <p style="font-size: 18px; color: #333; margin-bottom: 30px;">Voyage Code not found. Please correct or try again.</p>
-                <button class="btn" onclick="closeErrorModal()" style="width: auto; padding: 12px 40px;">OK</button>
-            </div>
-        </div>
-    </div>
 </body>
 </html>
