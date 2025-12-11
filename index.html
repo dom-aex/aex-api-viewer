@@ -83,6 +83,22 @@
             border-color: #667eea;
         }
 
+        .form-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
+            cursor: pointer;
+            accent-color: #667eea;
+            transform: scale(1.2);
+        }
+
+        .form-group label.checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            margin-bottom: 5px;
+        }
+
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -352,13 +368,14 @@
 
         .modal-content {
             background-color: white;
-            margin: 15% auto;
+            margin: auto;
             padding: 30px;
             border-radius: 12px;
             width: 90%;
             max-width: 500px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             animation: slideDown 0.3s;
+            position: relative;
         }
 
         .modal-header {
@@ -366,6 +383,31 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .voyage-code-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .voyage-code-header .voyage-code-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-right: 10px;
+        }
+        
+        .voyage-code-header .voyage-code-value {
+            font-size: 1.3em;
+            font-weight: 700;
+            letter-spacing: 1px;
         }
 
         .modal-header h3 {
@@ -384,7 +426,11 @@
             padding: 0;
             width: 30px;
             height: 30px;
-            line-height: 30px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
 
         .close-modal:hover {
@@ -448,7 +494,7 @@
             }
             .modal-content {
                 width: 95%;
-                margin: 20% auto;
+                margin: auto;
                 padding: 20px;
             }
         }
@@ -579,6 +625,10 @@
                 <div id="serviceStatusIndicator"></div>
                 <div id="serviceErrorContainer"></div>
                 <div id="serviceTableContainer" style="display: none;">
+                    <div id="voyageCodeHeader" class="voyage-code-header" style="display: none;">
+                        <span class="voyage-code-label">Voyage Code:</span>
+                        <span class="voyage-code-value" id="voyageCodeDisplay">-</span>
+                    </div>
                     <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
                         <button class="btn" onclick="fetchActivityComponents()" id="activityComponentsBtn" style="background: #17a2b8; flex: 1; min-width: 200px;">
                             🎯 Fetch Activity Components
@@ -586,6 +636,22 @@
                         <button class="btn" onclick="fetchVoyageMap()" id="voyageMapBtn" style="background: #28a745; flex: 1; min-width: 200px;">
                         🗺️ View Voyage Map
                         </button>
+                    </div>
+                    <div class="config-section" style="margin-top: 20px;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="checkbox-label" for="soloOccupancyPricing">
+                                    <input type="checkbox" id="soloOccupancyPricing" onchange="updateNewNetPriceColumn()">
+                                    Solo Occupancy Pricing
+                                </label>
+                                <small style="color: #666; display: block; margin-top: 5px;">Increases non-Single cabin prices by 50%</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="customDiscountPercentage">Custom Additional Discount Percentage</label>
+                                <input type="number" id="customDiscountPercentage" placeholder="e.g., 10" min="0" max="99" maxlength="2" oninput="handleDiscountInput(event)">
+                                <small style="color: #666; display: block; margin-top: 5px;">Enter a percentage (0-99) to calculate discounted prices</small>
+                            </div>
+                        </div>
                     </div>
                     <div style="overflow-x: auto;">
                         <table class="data-table" id="serviceDataTable">
@@ -598,6 +664,7 @@
                                     <th>Promotion Type</th>
                                     <th>Additional Promotion Price</th>
                                     <th>Net Price</th>
+                                    <th>New Net Price</th>
                                     <th>Units Available</th>
                                 </tr>
                             </thead>
@@ -689,9 +756,6 @@
                 <div id="voyageMapContainer" style="width: 100%; height: 52.5vh; min-height: 375px; background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
                     <p style="color: #666;">Loading map...</p>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button class="modal-btn" onclick="closeVoyageMapModal()">Close</button>
             </div>
         </div>
     </div>
@@ -1146,6 +1210,14 @@
             document.getElementById('activityComponentsTableContainer').style.display = 'none';
             document.getElementById('activityComponentsTableBody').innerHTML = '';
             clearError('activityComponents');
+            
+            // Clear cache when searching for new voyage
+            cachedActivityComponents = null;
+            cachedVoyageMap = null;
+            cachedVoyageCode = null;
+            
+            // Hide voyage code header
+            document.getElementById('voyageCodeHeader').style.display = 'none';
 
             try {
                 // Ensure we have a token
@@ -1257,7 +1329,7 @@
             console.log('CabinInformation:', cabinInformation.length, cabinInformation);
 
             if (pricingData.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 20px;">No pricing data found in response. Check console for data structure.</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 20px;">No pricing data found in response. Check console for data structure.</td></tr>';
                 document.getElementById('serviceTableContainer').style.display = 'block';
                 return;
             }
@@ -1285,10 +1357,37 @@
                     return cabinCategory === priceCategoryName;
                 });
 
+                // Get net price value for calculation
+                const netPrice = pricing.NetPrice || pricing.netPrice;
+                const netPriceValue = netPrice !== undefined && netPrice !== null ? parseFloat(netPrice) : null;
+                
+                // Check if cabin category contains "Single" (case-insensitive)
+                const isSingleCabin = priceCategoryName && priceCategoryName.toLowerCase().includes('single');
+                
+                // Calculate new net price: apply solo occupancy first (if applicable), then discount
+                const soloOccupancyChecked = document.getElementById('soloOccupancyPricing').checked;
+                const discountPercentage = parseFloat(document.getElementById('customDiscountPercentage').value) || 0;
+                
+                let calculatedPrice = netPriceValue;
+                if (calculatedPrice !== null) {
+                    // Apply solo occupancy pricing: increase by 50% if checked and NOT a Single cabin
+                    if (soloOccupancyChecked && !isSingleCabin) {
+                        calculatedPrice = calculatedPrice * 1.5;
+                    }
+                    // Apply discount percentage
+                    if (discountPercentage > 0) {
+                        calculatedPrice = calculatedPrice * (1 - discountPercentage / 100);
+                    }
+                }
+                
+                const newNetPriceDisplay = calculatedPrice !== null ? calculatedPrice.toFixed(2) : '-';
+
                 // If we have matching cabins, create a row for each, otherwise create one row
                 if (matchingCabins.length > 0) {
                     matchingCabins.forEach(cabin => {
                         const tr = document.createElement('tr');
+                        tr.setAttribute('data-net-price', netPriceValue !== null ? netPriceValue : '');
+                        tr.setAttribute('data-cabin-category', priceCategoryName || '');
                         tr.innerHTML = `
                             <td>${priceCategoryName || '-'}</td>
                             <td>${pricing.CurrencyIsoCode || pricing.currencyIsoCode || '-'}</td>
@@ -1296,7 +1395,8 @@
                             <td>${pricing.PromotionValue !== undefined ? pricing.PromotionValue : (pricing.promotionValue !== undefined ? pricing.promotionValue : '-')}</td>
                             <td>${pricing.PromotionType || pricing.promotionType || '-'}</td>
                             <td>${pricing.AdditionalPromotionPrice !== undefined ? pricing.AdditionalPromotionPrice : (pricing.additionalPromotionPrice !== undefined ? pricing.additionalPromotionPrice : '-')}</td>
-                            <td>${pricing.NetPrice || pricing.netPrice || '-'}</td>
+                            <td>${netPrice !== undefined && netPrice !== null ? netPrice : '-'}</td>
+                            <td class="new-net-price-cell">${newNetPriceDisplay}</td>
                             <td>${cabin.UnitAvailable !== undefined ? cabin.UnitAvailable : (cabin.unitAvailable !== undefined ? cabin.unitAvailable : '-')}</td>
                         `;
                         tableBody.appendChild(tr);
@@ -1304,6 +1404,8 @@
                 } else {
                     // No matching cabin, still show pricing data
                     const tr = document.createElement('tr');
+                    tr.setAttribute('data-net-price', netPriceValue !== null ? netPriceValue : '');
+                    tr.setAttribute('data-cabin-category', priceCategoryName || '');
                     tr.innerHTML = `
                         <td>${priceCategoryName || '-'}</td>
                         <td>${pricing.CurrencyIsoCode || pricing.currencyIsoCode || '-'}</td>
@@ -1311,7 +1413,8 @@
                         <td>${pricing.PromotionValue !== undefined ? pricing.PromotionValue : (pricing.promotionValue !== undefined ? pricing.promotionValue : '-')}</td>
                         <td>${pricing.PromotionType || pricing.promotionType || '-'}</td>
                         <td>${pricing.AdditionalPromotionPrice !== undefined ? pricing.AdditionalPromotionPrice : (pricing.additionalPromotionPrice !== undefined ? pricing.additionalPromotionPrice : '-')}</td>
-                        <td>${pricing.NetPrice || pricing.netPrice || '-'}</td>
+                        <td>${netPrice !== undefined && netPrice !== null ? netPrice : '-'}</td>
+                        <td class="new-net-price-cell">${newNetPriceDisplay}</td>
                         <td>-</td>
                     `;
                     tableBody.appendChild(tr);
@@ -1319,6 +1422,389 @@
             });
 
             document.getElementById('serviceTableContainer').style.display = 'block';
+            
+            // Display voyage code header
+            const voyageCode = document.getElementById('voyageCode').value.toUpperCase().trim();
+            document.getElementById('voyageCodeDisplay').textContent = voyageCode;
+            document.getElementById('voyageCodeHeader').style.display = 'block';
+            
+            // Automatically fetch Activity Components and Voyage Map after service call completes
+            // Store in cache for later use
+            cachedVoyageCode = voyageCode;
+            autoFetchActivityComponentsAndMap();
+        }
+        
+        function handleDiscountInput(event) {
+            const input = event.target;
+            let value = input.value;
+            
+            // Remove any non-numeric characters
+            value = value.replace(/[^0-9]/g, '');
+            
+            // Limit to 2 digits
+            if (value.length > 2) {
+                value = value.substring(0, 2);
+            }
+            
+            // Ensure value is between 0 and 99
+            const numValue = parseInt(value) || 0;
+            if (numValue > 99) {
+                value = '99';
+            }
+            
+            input.value = value;
+            updateNewNetPriceColumn();
+        }
+        
+        function updateNewNetPriceColumn() {
+            const discountInput = document.getElementById('customDiscountPercentage');
+            const discountPercentage = parseFloat(discountInput.value) || 0;
+            const soloOccupancyChecked = document.getElementById('soloOccupancyPricing').checked;
+            
+            // Ensure the value is between 0 and 99
+            if (discountPercentage < 0) {
+                discountInput.value = 0;
+            } else if (discountPercentage > 99) {
+                discountInput.value = 99;
+            }
+            
+            // Get all rows in the table
+            const tableBody = document.getElementById('serviceTableBody');
+            const rows = tableBody.querySelectorAll('tr');
+            
+            // Update each row's new net price
+            rows.forEach(row => {
+                const netPriceCell = row.querySelector('.new-net-price-cell');
+                if (!netPriceCell) return;
+                
+                const netPriceValue = parseFloat(row.getAttribute('data-net-price'));
+                const cabinCategory = row.getAttribute('data-cabin-category') || '';
+                
+                if (isNaN(netPriceValue)) {
+                    netPriceCell.textContent = '-';
+                    return;
+                }
+                
+                // Check if cabin category contains "Single" (case-insensitive)
+                const isSingleCabin = cabinCategory.toLowerCase().includes('single');
+                
+                // Calculate price: apply solo occupancy first (if applicable), then discount
+                let calculatedPrice = netPriceValue;
+                
+                // Apply solo occupancy pricing: increase by 50% if checked and NOT a Single cabin
+                if (soloOccupancyChecked && !isSingleCabin) {
+                    calculatedPrice = calculatedPrice * 1.5;
+                }
+                
+                // Apply discount percentage
+                if (discountPercentage > 0) {
+                    calculatedPrice = calculatedPrice * (1 - discountPercentage / 100);
+                }
+                
+                netPriceCell.textContent = calculatedPrice.toFixed(2);
+            });
+        }
+        
+        async function autoFetchActivityComponentsAndMap() {
+            // Automatically fetch both Activity Components and Voyage Map
+            // Store results in cache so buttons can use cached data
+            console.log('🔄 Auto-fetching Activity Components and Voyage Map...');
+            
+            try {
+                // Fetch Activity Components
+                await fetchActivityComponentsForCache();
+                
+                // Fetch Voyage Map
+                await fetchVoyageMapForCache();
+                
+                console.log('✅ Auto-fetch complete. Data cached.');
+            } catch (error) {
+                console.warn('⚠️ Auto-fetch failed (will fetch on button click):', error);
+            }
+        }
+        
+        async function fetchActivityComponentsForCache() {
+            if (!serviceData) return;
+            
+            const startDate = getStartDateFromServiceData(serviceData);
+            if (!startDate) return;
+            
+            const formattedDate = formatDateForAPI(startDate);
+            const voyageCode = document.getElementById('voyageCode').value.toUpperCase().trim();
+            const selectedCurrency = document.getElementById('currency').value;
+            const packagesEndpoint = 'https://aurora-website-app-26ta7u.5sc6y6-4.usa-e2.cloudhub.io/api/packages';
+            
+            try {
+                const packagesUrl = new URL(packagesEndpoint);
+                packagesUrl.searchParams.set('first', '30');
+                packagesUrl.searchParams.set('offset', '0');
+                packagesUrl.searchParams.set('expeditionDate', formattedDate);
+                const finalPackagesUrl = getProxyUrl(packagesUrl.toString(), 'GET');
+                
+                const response = await fetch(finalPackagesUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) return;
+                
+                const data = await response.json();
+                
+                // Find matching package and extract activity components
+                const matchingPackage = findPackageByVoyageCode(data, voyageCode);
+                if (matchingPackage) {
+                    // Extract activity components (same logic as displayActivityComponentsTable)
+                    let activityComponents = [];
+                    const filterCurrency = selectedCurrency ? selectedCurrency.toUpperCase() : null;
+                    
+                    function extractActivityComponentsFromPackage(pkg) {
+                        if (!pkg || typeof pkg !== 'object') return;
+                        
+                        const components = pkg.Components || pkg.components || pkg['packagekey'] || pkg.packagekey || pkg['PackageKey'] || pkg.PackageKey || pkg.Component || pkg.component;
+                        
+                        if (components && Array.isArray(components)) {
+                            processComponents(components);
+                        }
+                    }
+                    
+                    function processComponents(components) {
+                        components.forEach(component => {
+                            if (!component || typeof component !== 'object') return;
+                            
+                            const recordType = component.RecordType || component.recordType || component.Record_Type || component.record_type;
+                            
+                            if (recordType && recordType.toString().toLowerCase() === 'activity') {
+                                const componentOptions = component.ComponentOptions || component.componentOptions || component['Component Options'] || component['component options'] || component.Options || component.options;
+                                
+                                if (componentOptions && Array.isArray(componentOptions)) {
+                                    componentOptions.forEach(option => {
+                                        if (!option || typeof option !== 'object') return;
+                                        
+                                        const optionName = option.OptionName || option.optionName || option.Option_Name || option.option_name || option.Name || option.name || '';
+                                        const isWaitlist = optionName && optionName.toString().toLowerCase().includes('waitlist');
+                                        
+                                        if (optionName && !isWaitlist) {
+                                            const pricingInventory = option.PricingInventory || option.pricingInventory || option.Pricing_Inventory || option.pricing_inventory;
+                                            const priceCategory = option.PriceCategory || option.priceCategory || option.Price_Category || option.price_category;
+                                            const pricingData = pricingInventory || (priceCategory && priceCategory.PricingInventory) || (priceCategory && priceCategory.pricingInventory) || priceCategory;
+                                            
+                                            if (pricingData) {
+                                                let unitsAvailable = null;
+                                                let grossPrice = null;
+                                                let currency = '';
+                                                
+                                                if (Array.isArray(pricingData) && pricingData.length > 0) {
+                                                    const pricing = pricingData.find(p => {
+                                                        if (!filterCurrency || filterCurrency === 'ALL') return true;
+                                                        const pricingCurrency = (p.Currency || p.currency || p.CurrencyIsoCode || p.currencyIsoCode || '').toString().toUpperCase();
+                                                        return pricingCurrency === filterCurrency;
+                                                    }) || pricingData[0];
+                                                    
+                                                    unitsAvailable = pricing.UnitAvailable !== undefined ? pricing.UnitAvailable : (pricing.unitAvailable !== undefined ? pricing.unitAvailable : (pricing.UnitsAvailable !== undefined ? pricing.UnitsAvailable : (pricing.unitsAvailable !== undefined ? pricing.unitsAvailable : null)));
+                                                    grossPrice = pricing.GrossPrice !== undefined ? pricing.GrossPrice : (pricing.grossPrice !== undefined ? pricing.grossPrice : null);
+                                                    currency = pricing.Currency || pricing.currency || pricing.CurrencyIsoCode || pricing.currencyIsoCode || '';
+                                                } else if (typeof pricingData === 'object') {
+                                                    const pricingCurrency = (pricingData.Currency || pricingData.currency || pricingData.CurrencyIsoCode || pricingData.currencyIsoCode || '').toString().toUpperCase();
+                                                    if (!filterCurrency || filterCurrency === 'ALL' || pricingCurrency === filterCurrency) {
+                                                        unitsAvailable = pricingData.UnitAvailable !== undefined ? pricingData.UnitAvailable : (pricingData.unitAvailable !== undefined ? pricingData.unitAvailable : (pricingData.UnitsAvailable !== undefined ? pricingData.UnitsAvailable : (pricingData.unitsAvailable !== undefined ? pricingData.unitsAvailable : null)));
+                                                        grossPrice = pricingData.GrossPrice !== undefined ? pricingData.GrossPrice : (pricingData.grossPrice !== undefined ? pricingData.grossPrice : null);
+                                                        currency = pricingData.Currency || pricingData.currency || pricingData.CurrencyIsoCode || pricingData.currencyIsoCode || '';
+                                                    } else {
+                                                        return; // Skip if currency doesn't match
+                                                    }
+                                                }
+                                                
+                                                if (currency || !filterCurrency || filterCurrency === 'ALL') {
+                                                    activityComponents.push({
+                                                        name: optionName.toString(),
+                                                        unitsAvailable: unitsAvailable,
+                                                        grossPrice: grossPrice,
+                                                        currency: currency.toString()
+                                                    });
+                                                }
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    }
+                    
+                    extractActivityComponentsFromPackage(matchingPackage);
+                    
+                    // If no results and currency is not USD, try again with USD as fallback
+                    if (activityComponents.length === 0 && filterCurrency && filterCurrency !== 'ALL' && filterCurrency !== 'USD') {
+                        console.log('⚠️ No results for selected currency in cache, trying USD fallback...');
+                        activityComponents = []; // Reset array
+                        const usdFilterCurrency = 'USD';
+                        
+                        function extractActivityComponentsFromPackageWithCurrency(pkg, currencyFilter) {
+                            if (!pkg || typeof pkg !== 'object') return;
+                            
+                            const components = pkg.Components || pkg.components || pkg['packagekey'] || pkg.packagekey || pkg['PackageKey'] || pkg.PackageKey || pkg.Component || pkg.component;
+                            
+                            if (components && Array.isArray(components)) {
+                                processComponentsWithCurrency(components, currencyFilter);
+                            }
+                        }
+                        
+                        function processComponentsWithCurrency(components, currencyFilter) {
+                            components.forEach(component => {
+                                if (!component || typeof component !== 'object') return;
+                                
+                                const recordType = component.RecordType || component.recordType || component.Record_Type || component.record_type;
+                                
+                                if (recordType && recordType.toString().toLowerCase() === 'activity') {
+                                    const componentOptions = component.ComponentOptions || component.componentOptions || component['Component Options'] || component['component options'] || component.Options || component.options;
+                                    
+                                    if (componentOptions && Array.isArray(componentOptions)) {
+                                        componentOptions.forEach(option => {
+                                            if (!option || typeof option !== 'object') return;
+                                            
+                                            const optionName = option.OptionName || option.optionName || option.Option_Name || option.option_name || option.Name || option.name || '';
+                                            const isWaitlist = optionName && optionName.toString().toLowerCase().includes('waitlist');
+                                            
+                                            if (optionName && !isWaitlist) {
+                                                const pricingInventory = option.PricingInventory || option.pricingInventory || option.Pricing_Inventory || option.pricing_inventory;
+                                                const priceCategory = option.PriceCategory || option.priceCategory || option.Price_Category || option.price_category;
+                                                const pricingData = pricingInventory || (priceCategory && priceCategory.PricingInventory) || (priceCategory && priceCategory.pricingInventory) || priceCategory;
+                                                
+                                                if (pricingData) {
+                                                    let unitsAvailable = null;
+                                                    let grossPrice = null;
+                                                    let currency = '';
+                                                    
+                                                    if (Array.isArray(pricingData) && pricingData.length > 0) {
+                                                        const pricing = pricingData.find(p => {
+                                                            const pricingCurrency = (p.Currency || p.currency || p.CurrencyIsoCode || p.currencyIsoCode || '').toString().toUpperCase();
+                                                            return pricingCurrency === currencyFilter;
+                                                        });
+                                                        
+                                                        if (pricing) {
+                                                            unitsAvailable = pricing.UnitAvailable !== undefined ? pricing.UnitAvailable : (pricing.unitAvailable !== undefined ? pricing.unitAvailable : (pricing.UnitsAvailable !== undefined ? pricing.UnitsAvailable : (pricing.unitsAvailable !== undefined ? pricing.unitsAvailable : null)));
+                                                            grossPrice = pricing.GrossPrice !== undefined ? pricing.GrossPrice : (pricing.grossPrice !== undefined ? pricing.grossPrice : null);
+                                                            currency = pricing.Currency || pricing.currency || pricing.CurrencyIsoCode || pricing.currencyIsoCode || '';
+                                                        }
+                                                    } else if (typeof pricingData === 'object') {
+                                                        const pricingCurrency = (pricingData.Currency || pricingData.currency || pricingData.CurrencyIsoCode || pricingData.currencyIsoCode || '').toString().toUpperCase();
+                                                        if (pricingCurrency === currencyFilter) {
+                                                            unitsAvailable = pricingData.UnitAvailable !== undefined ? pricingData.UnitAvailable : (pricingData.unitAvailable !== undefined ? pricingData.unitAvailable : (pricingData.UnitsAvailable !== undefined ? pricingData.UnitsAvailable : (pricingData.unitsAvailable !== undefined ? pricingData.unitsAvailable : null)));
+                                                            grossPrice = pricingData.GrossPrice !== undefined ? pricingData.GrossPrice : (pricingData.grossPrice !== undefined ? pricingData.grossPrice : null);
+                                                            currency = pricingData.Currency || pricingData.currency || pricingData.CurrencyIsoCode || pricingData.currencyIsoCode || '';
+                                                        }
+                                                    }
+                                                    
+                                                    if (currency) {
+                                                        activityComponents.push({
+                                                            name: optionName.toString(),
+                                                            unitsAvailable: unitsAvailable,
+                                                            grossPrice: grossPrice,
+                                                            currency: currency.toString()
+                                                        });
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                        
+                        extractActivityComponentsFromPackageWithCurrency(matchingPackage, usdFilterCurrency);
+                        console.log('📊 After USD fallback in cache: Total activities found:', activityComponents.length);
+                    }
+                    
+                    cachedActivityComponents = activityComponents;
+                    console.log('✅ Activity Components cached:', activityComponents.length, 'items');
+                }
+            } catch (error) {
+                console.warn('⚠️ Failed to cache Activity Components:', error);
+            }
+        }
+        
+        async function fetchVoyageMapForCache() {
+            if (!serviceData) return;
+            
+            const startDate = getStartDateFromServiceData(serviceData);
+            if (!startDate) return;
+            
+            const formattedDate = formatDateForAPI(startDate);
+            const voyageCode = document.getElementById('voyageCode').value.toUpperCase().trim();
+            const packagesEndpoint = 'https://aurora-website-app-26ta7u.5sc6y6-4.usa-e2.cloudhub.io/api/packages';
+            
+            try {
+                const packagesUrl = new URL(packagesEndpoint);
+                packagesUrl.searchParams.set('first', '30');
+                packagesUrl.searchParams.set('offset', '0');
+                packagesUrl.searchParams.set('expeditionDate', formattedDate);
+                const finalPackagesUrl = getProxyUrl(packagesUrl.toString(), 'GET');
+                
+                const response = await fetch(finalPackagesUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) return;
+                
+                const data = await response.json();
+                
+                // Find matching package and extract Map_URL
+                // Use the same function as fetchVoyageMap
+                function findPackageByVoyageCodeForMap(obj, targetVoyageCode) {
+                    if (!obj || typeof obj !== 'object') {
+                        return null;
+                    }
+                    
+                    // Check if this object itself matches
+                    const nameValue = obj.Name || obj.name || obj.VoyageCode || obj.voyageCode || obj.Code || obj.code;
+                    if (nameValue && isValidVoyageCode(nameValue) && nameValue.toString().toUpperCase().trim() === targetVoyageCode.toUpperCase().trim()) {
+                        return obj;
+                    }
+                    
+                    // Check arrays
+                    if (Array.isArray(obj)) {
+                        for (let item of obj) {
+                            const found = findPackageByVoyageCodeForMap(item, targetVoyageCode);
+                            if (found) return found;
+                        }
+                        return null;
+                    }
+                    
+                    // Recursively search object properties
+                    for (let key in obj) {
+                        if (obj.hasOwnProperty(key)) {
+                            if (key.toLowerCase() === 'package' && Array.isArray(obj[key])) {
+                                for (let pkg of obj[key]) {
+                                    const found = findPackageByVoyageCodeForMap(pkg, targetVoyageCode);
+                                    if (found) return found;
+                                }
+                            } else {
+                                const found = findPackageByVoyageCodeForMap(obj[key], targetVoyageCode);
+                                if (found) return found;
+                            }
+                        }
+                    }
+                    
+                    return null;
+                }
+                
+                const matchingPackage = findPackageByVoyageCodeForMap(data, voyageCode);
+                if (matchingPackage) {
+                    const mapUrl = matchingPackage.Map_URL || matchingPackage.map_url || matchingPackage.MapUrl || matchingPackage.mapUrl || matchingPackage.Map_Url || matchingPackage.map_Url || matchingPackage['Map_URL'] || matchingPackage['map_url'] || null;
+                    cachedVoyageMap = mapUrl;
+                    console.log('✅ Voyage Map cached:', mapUrl ? 'URL found' : 'No URL');
+                }
+            } catch (error) {
+                console.warn('⚠️ Failed to cache Voyage Map:', error);
+            }
         }
 
         function displayTripNotesTable(data) {
@@ -1558,8 +2044,28 @@
         }
 
         async function fetchActivityComponents() {
+            const voyageCode = document.getElementById('voyageCode').value.toUpperCase().trim();
+            const activityComponentsBtn = document.getElementById('activityComponentsBtn');
+            
+            activityComponentsBtn.disabled = true;
+            showStatus('🔄 Loading activity components...', 'loading', 'activityComponents');
+            clearError('activityComponents');
+            document.getElementById('activityComponentsResponseContainer').style.display = 'none';
+            document.getElementById('activityComponentsTableContainer').style.display = 'none';
+            document.getElementById('activityComponentsSection').style.display = 'block';
+
+            // Check if we have cached data for this voyage code
+            if (cachedActivityComponents && cachedVoyageCode === voyageCode) {
+                console.log('✅ Using cached Activity Components data');
+                showStatus('✅ Loaded from cache', 'success', 'activityComponents');
+                displayActivityComponentsFromCache();
+                activityComponentsBtn.disabled = false;
+                return;
+            }
+
             if (!serviceData) {
                 showError('Please fetch voyage details first', 'activityComponents');
+                activityComponentsBtn.disabled = false;
                 return;
             }
 
@@ -1568,6 +2074,7 @@
 
             if (!startDate) {
                 showError('StartDate not found in service response. Cannot fetch activity components.', 'activityComponents');
+                activityComponentsBtn.disabled = false;
                 return;
             }
 
@@ -1575,15 +2082,9 @@
             const formattedDate = formatDateForAPI(startDate);
             console.log('Using expeditionDate for Activity Components:', formattedDate, '(from StartDate:', startDate, ')');
 
-            const activityComponentsBtn = document.getElementById('activityComponentsBtn');
             const packagesEndpoint = 'https://aurora-website-app-26ta7u.5sc6y6-4.usa-e2.cloudhub.io/api/packages';
             
-            activityComponentsBtn.disabled = true;
             showStatus('🔄 Fetching activity components...', 'loading', 'activityComponents');
-            clearError('activityComponents');
-            document.getElementById('activityComponentsResponseContainer').style.display = 'none';
-            document.getElementById('activityComponentsTableContainer').style.display = 'none';
-            document.getElementById('activityComponentsSection').style.display = 'block';
 
             try {
                 // Build packages URL with expeditionDate
@@ -2100,12 +2601,123 @@
                 });
             }
             
-            // Extract Activity Components from the matching package
+            // Extract Activity Components from the matching package with selected currency
             extractActivityComponentsFromPackage(matchingPackage);
             
             console.log('📊 Step 6 Complete: Found activity components for voyage', voyageCode);
             console.log('📊 Total activities found:', activityComponents.length);
             console.log('📊 Activity components:', activityComponents);
+
+            // If no results and currency is not USD, try again with USD as fallback
+            if (activityComponents.length === 0 && filterCurrency && filterCurrency !== 'ALL' && filterCurrency !== 'USD') {
+                console.log('⚠️ No results for selected currency, trying USD fallback...');
+                activityComponents = []; // Reset array
+                const originalFilterCurrency = filterCurrency;
+                // Temporarily override filterCurrency to USD
+                const usdFilterCurrency = 'USD';
+                // Re-extract with USD
+                function extractActivityComponentsFromPackageWithCurrency(pkg, currencyFilter) {
+                    // This is a modified version that uses the passed currency filter
+                    // We'll reuse the same logic but with a different filter
+                    if (!pkg || typeof pkg !== 'object') return;
+                    
+                    const components = pkg.Components || pkg.components || pkg['packagekey'] || pkg.packagekey || pkg['PackageKey'] || pkg.PackageKey || pkg.Component || pkg.component;
+                    
+                    if (components && Array.isArray(components)) {
+                        processComponentsWithCurrency(components, currencyFilter);
+                    } else if (components && typeof components === 'object') {
+                        for (const key in components) {
+                            if (Array.isArray(components[key])) {
+                                processComponentsWithCurrency(components[key], currencyFilter);
+                            }
+                        }
+                    } else {
+                        for (const key in pkg) {
+                            if (Array.isArray(pkg[key]) && pkg[key].length > 0) {
+                                const firstItem = pkg[key][0];
+                                if (firstItem && typeof firstItem === 'object' && (firstItem.RecordType || firstItem.recordType)) {
+                                    processComponentsWithCurrency(pkg[key], currencyFilter);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                function processComponentsWithCurrency(components, currencyFilter) {
+                    components.forEach((component) => {
+                        if (!component || typeof component !== 'object') return;
+                        
+                        const recordType = component.RecordType || component.recordType || component.Record_Type || component.record_type;
+                        
+                        if (recordType && recordType.toString().toLowerCase() === 'activity') {
+                            const componentOptions = component.ComponentOptions || component.componentOptions || component['Component Options'] || component['component options'] || component.Options || component.options;
+                            
+                            if (componentOptions && Array.isArray(componentOptions)) {
+                                componentOptions.forEach((option) => {
+                                    if (!option || typeof option !== 'object') return;
+                                    
+                                    const optionName = option.OptionName || option.optionName || option.Option_Name || option.option_name || option.Name || option.name || '';
+                                    const isWaitlist = optionName && optionName.toString().toLowerCase().includes('waitlist');
+                                    
+                                    if (optionName && !isWaitlist) {
+                                        const pricingInventory = option.PricingInventory || option.pricingInventory || option.Pricing_Inventory || option.pricing_inventory;
+                                        const priceCategory = option.PriceCategory || option.priceCategory || option.Price_Category || option.price_category;
+                                        const pricingData = pricingInventory || (priceCategory && priceCategory.PricingInventory) || (priceCategory && priceCategory.pricingInventory) || priceCategory;
+                                        
+                                        if (pricingData) {
+                                            let unitsAvailable = null;
+                                            let grossPrice = null;
+                                            let currency = '';
+                                            let matchingPricing = null;
+                                            
+                                            if (Array.isArray(pricingData) && pricingData.length > 0) {
+                                                // Find USD pricing
+                                                for (const pricing of pricingData) {
+                                                    const pricingCurrency = (pricing.Currency || pricing.currency || pricing.CurrencyIsoCode || pricing.currencyIsoCode || pricing.Currency_ISO_Code || pricing.currency_iso_code || pricing.CurrencyCode || pricing.currencyCode || '').toString().toUpperCase();
+                                                    
+                                                    if (pricingCurrency === currencyFilter) {
+                                                        matchingPricing = pricing;
+                                                        break;
+                                                    }
+                                                }
+                                                
+                                                if (matchingPricing) {
+                                                    unitsAvailable = matchingPricing.UnitAvailable !== undefined ? matchingPricing.UnitAvailable : (matchingPricing.unitAvailable !== undefined ? matchingPricing.unitAvailable : (matchingPricing.UnitsAvailable !== undefined ? matchingPricing.UnitsAvailable : (matchingPricing.unitsAvailable !== undefined ? matchingPricing.unitsAvailable : null)));
+                                                    grossPrice = matchingPricing.GrossPrice !== undefined ? matchingPricing.GrossPrice : (matchingPricing.grossPrice !== undefined ? matchingPricing.grossPrice : null);
+                                                    currency = matchingPricing.Currency || matchingPricing.currency || matchingPricing.CurrencyIsoCode || matchingPricing.currencyIsoCode || matchingPricing.CurrencyCode || matchingPricing.currencyCode || '';
+                                                }
+                                            } else if (typeof pricingData === 'object') {
+                                                const pricingCurrency = (pricingData.Currency || pricingData.currency || pricingData.CurrencyIsoCode || pricingData.currencyIsoCode || pricingData.CurrencyCode || pricingData.currencyCode || '').toString().toUpperCase();
+                                                
+                                                if (pricingCurrency === currencyFilter) {
+                                                    matchingPricing = pricingData;
+                                                    unitsAvailable = pricingData.UnitAvailable !== undefined ? pricingData.UnitAvailable : (pricingData.unitAvailable !== undefined ? pricingData.unitAvailable : (pricingData.UnitsAvailable !== undefined ? pricingData.UnitsAvailable : (pricingData.unitsAvailable !== undefined ? pricingData.unitsAvailable : null)));
+                                                    grossPrice = pricingData.GrossPrice !== undefined ? pricingData.GrossPrice : (pricingData.grossPrice !== undefined ? pricingData.grossPrice : null);
+                                                    currency = pricingData.Currency || pricingData.currency || pricingData.CurrencyIsoCode || pricingData.currencyIsoCode || pricingData.CurrencyCode || pricingData.currencyCode || '';
+                                                }
+                                            }
+                                            
+                                            if (matchingPricing) {
+                                                const activityData = {
+                                                    name: optionName.toString(),
+                                                    unitsAvailable: unitsAvailable,
+                                                    grossPrice: grossPrice,
+                                                    currency: currency.toString()
+                                                };
+                                                activityComponents.push(activityData);
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+                
+                extractActivityComponentsFromPackageWithCurrency(matchingPackage, usdFilterCurrency);
+                console.log('📊 After USD fallback: Total activities found:', activityComponents.length);
+            }
 
             if (activityComponents.length === 0) {
                 // Show modal popup instead of error message
@@ -2114,6 +2726,13 @@
             }
 
             // Display activity components in table
+            displayActivityComponentsInTable(activityComponents);
+        }
+        
+        function displayActivityComponentsInTable(activityComponents) {
+            const tableBody = document.getElementById('activityComponentsTableBody');
+            tableBody.innerHTML = '';
+            
             activityComponents.forEach(activity => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
@@ -2126,6 +2745,15 @@
             });
 
             document.getElementById('activityComponentsTableContainer').style.display = 'block';
+        }
+        
+        function displayActivityComponentsFromCache() {
+            if (!cachedActivityComponents || cachedActivityComponents.length === 0) {
+                showActivityComponentsModal();
+                return;
+            }
+            
+            displayActivityComponentsInTable(cachedActivityComponents);
         }
 
         async function fetchVoyageMap() {
@@ -2349,8 +2977,13 @@
                 
                 if (!mapUrl) {
                     showVoyageMapErrorModal('Map URL not found for this voyage.');
+                    voyageMapBtn.disabled = false;
                     return;
                 }
+                
+                // Cache the map URL
+                cachedVoyageMap = mapUrl;
+                cachedVoyageCode = voyageCode;
                 
                 // Display map in modal
                 displayVoyageMap(mapUrl);
@@ -2397,7 +3030,9 @@
         function showVoyageMapModal() {
             const modal = document.getElementById('voyageMapModal');
             if (modal) {
-                modal.style.display = 'block';
+                modal.style.display = 'flex';
+                modal.style.alignItems = 'center';
+                modal.style.justifyContent = 'center';
             }
         }
         
@@ -2477,7 +3112,9 @@
         function showActivityComponentsModal() {
             const modal = document.getElementById('activityComponentsModal');
             if (modal) {
-                modal.style.display = 'block';
+                modal.style.display = 'flex';
+                modal.style.alignItems = 'center';
+                modal.style.justifyContent = 'center';
             }
         }
 
